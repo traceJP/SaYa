@@ -1,0 +1,75 @@
+debug: false
+
+
+# 个人配置
+jwt:
+  token:
+    header:
+      name: tracejp
+      object: saya
+    expired: 1000000
+    sign: saya
+
+
+# 系统配置
+server:
+  port: 8081
+  compression:
+    enabled: false
+
+spring:
+  # 热部署
+  devtools:
+    restart:
+      enabled: true
+
+  # json转换配置
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+
+  # 数据源配置
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/saya?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8&useSSL=true
+    username: root
+    password: 123456
+    # druid连接池配置
+    druid:
+      # 初始连接数
+      initialSize: 5
+      # 最小连接池数量
+      minIdle: 10
+      # 最大连接池数量
+      maxActive: 20
+      # 配置获取连接等待超时的时间
+      maxWait: 60000
+
+  # redis配置
+  redis:
+    host: tracejp.top
+    database: 1
+    port: 6379
+    password:
+
+  servlet:
+    # 文件上传配置
+    multipart:
+      maxFileSize: 100MB
+      maxRequestSize: 100MB
+
+# shiro配置
+shiro:
+
+#swagger配置
+swagger2:
+  enable: true
+  title: 纱耶网盘
+  description: 仿阿里云盘项目
+  version: 1.0.0
+  serviceUrl: https://github.com/traceJP
+  basePackage: com.tracejp.saya.controller
+
+# mybatis-plus配置
+mybatis-plus:
+
