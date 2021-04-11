@@ -1,7 +1,11 @@
 package com.tracejp.saya.service;
 
 
-import com.baomidou.mybatisplus.extension.service.IService;
+import com.tracejp.saya.model.dto.UserDto;
+import com.tracejp.saya.model.entity.User;
+import com.tracejp.saya.model.support.BaseResponse;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * <p>
@@ -12,5 +16,68 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @since 2021-04-06
  */
 public interface UserService {
+
+    /**
+     * 用户注册
+     * @param user 用户实体
+     * @return
+     */
+    BaseResponse<UserDto> register(User user);
+
+    /**
+     * 手机密码登录认证
+     * @param phone 手机号
+     * @param password 密码
+     * @return
+     */
+    BaseResponse<UserDto> authenticateByPassword(Integer phone, String password);
+
+    /**
+     * 手机验证码登录认证
+     * @param phone 手机号
+     * @param smsCode 短信验证码
+     * @return
+     */
+    BaseResponse<UserDto> authenticateBySms(Integer phone, String smsCode);
+
+    /**
+     * 获取登录认证短信
+     * @param phone 手机号
+     * @param request 请求实体
+     * @return
+     */
+    BaseResponse<?> getAuthenticateSms(Integer phone, HttpServletRequest request);
+
+    /**
+     * 通过driveId获取用户信息
+     * @param drive 用户uuid
+     * @return User
+     */
+    User queryUserByDrive(String drive);
+
+    /**
+     * 通过手机号获取用户信息
+     * @param phone 手机号
+     * @return User
+     */
+    User queryUserByPhone(Integer phone);
+
+    /**
+     * 修改用户基本信息
+     * @return
+     */
+    BaseResponse<UserDto> updateAssets();
+
+    /**
+     * 修改用户密码
+     * @return
+     */
+    BaseResponse<?> updatePassword();
+
+    /**
+     * 修改手机号
+     * @return
+     */
+    BaseResponse<?> updatePhone();
 
 }

@@ -1,9 +1,9 @@
-package com.tracejp.saya.config;
+package com.tracejp.saya.frame;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.tracejp.saya.config.properties.JwtProperties;
+import com.tracejp.saya.frame.properties.JwtProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

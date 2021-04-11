@@ -1,7 +1,6 @@
-package com.tracejp.saya.config;
+package com.tracejp.saya.frame;
 
-import com.tracejp.saya.config.shiro.TokenRealm;
-import com.tracejp.saya.config.shiro.JwtFilter;
+import com.tracejp.saya.frame.shiro.*;
 import org.apache.shiro.authc.pam.AtLeastOneSuccessfulStrategy;
 import org.apache.shiro.authc.pam.ModularRealmAuthenticator;
 import org.apache.shiro.mgt.DefaultSessionStorageEvaluator;
@@ -28,15 +27,19 @@ public class ShiroConfig {
     /**
      * shiro核心
      */
-    @Bean()
-    public DefaultWebSecurityManager securityManager(TokenRealm tokenRealm) {
+    @Bean
+    public DefaultWebSecurityManager securityManager(TokenRealm tokenRealm, PasswordRealm passwordRealm, SmsRealm smsRealm) {
 
         DefaultWebSecurityManager manager = new DefaultWebSecurityManager();
 
-        // 添加自定义realm
+        // 自定义多realm认证器，添加自定义realm
+        MultiRealmAuthenticator multiRealmAuthenticator = new MultiRealmAuthenticator();
         List<Realm> realms = new LinkedList<>();
         realms.add(tokenRealm);
-        manager.setRealms(realms);
+        realms.add(smsRealm);
+        realms.add(passwordRealm);
+        multiRealmAuthenticator.setRealms(realms);
+        manager.setAuthenticator(multiRealmAuthenticator);
 
         // 禁用shiro自带session
         DefaultSubjectDAO subjectDAO = new DefaultSubjectDAO();
@@ -51,7 +54,7 @@ public class ShiroConfig {
     /**
      * shiro自定义过滤器
      */
-    @Bean()
+    @Bean
     public ShiroFilterFactoryBean shiroFilter(DefaultWebSecurityManager securityManager) {
         ShiroFilterFactoryBean factoryBean = new ShiroFilterFactoryBean();
         factoryBean.setSecurityManager(securityManager);
@@ -65,6 +68,7 @@ public class ShiroConfig {
         Map<String, String> filterRuleMap = new LinkedHashMap<>();
         // 接口规则设置
         filterRuleMap.put("/unauthorized/**", "anon");
+        filterRuleMap.put("/login/**", "anon");    // 登录接口开放
         filterRuleMap.put("/tbTemplate/getToken", "anon");    // 测试接口
 
         // 所有请求都需要通过jwt拦截器
@@ -72,16 +76,6 @@ public class ShiroConfig {
 
         factoryBean.setFilterChainDefinitionMap(filterRuleMap);
         return factoryBean;
-    }
-
-    /**
-     * 多realm策略配置
-     */
-    @Bean
-    public ModularRealmAuthenticator authenticators() {
-        ModularRealmAuthenticator module = new ModularRealmAuthenticator();
-        module.setAuthenticationStrategy(new AtLeastOneSuccessfulStrategy());
-        return module;
     }
 
     /**

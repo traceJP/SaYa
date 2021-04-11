@@ -1,6 +1,6 @@
-package com.tracejp.saya.config;
+package com.tracejp.saya.frame;
 
-import com.tracejp.saya.config.properties.Swagger2Properties;
+import com.tracejp.saya.frame.properties.Swagger2Properties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

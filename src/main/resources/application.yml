@@ -9,6 +9,14 @@ jwt:
       object: saya
     expired: 1000000
     sign: saya
+ali:
+  sms:
+    access-key-id:
+    access-key-secret:
+    endpoint:
+    sign-name:
+    template-code:
+      login:
 
 
 # 系统配置
@@ -47,8 +55,8 @@ spring:
 
   # redis配置
   redis:
-    host: tracejp.top
     database: 1
+    host: tracejp.top
     port: 6379
     password:
 
@@ -58,9 +66,6 @@ spring:
       maxFileSize: 100MB
       maxRequestSize: 100MB
 
-# shiro配置
-shiro:
-
 #swagger配置
 swagger2:
   enable: true
@@ -69,7 +74,4 @@ swagger2:
   version: 1.0.0
   serviceUrl: https://github.com/traceJP
   basePackage: com.tracejp.saya.controller
-
-# mybatis-plus配置
-mybatis-plus:
 

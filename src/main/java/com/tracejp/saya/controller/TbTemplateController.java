@@ -1,7 +1,7 @@
 package com.tracejp.saya.controller;
 
 
-import com.tracejp.saya.config.JwtManager;
+import com.tracejp.saya.frame.JwtManager;
 import com.tracejp.saya.service.TbTemplateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;

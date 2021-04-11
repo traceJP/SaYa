@@ -1,8 +1,9 @@
-package com.tracejp.saya.config.shiro;
+package com.tracejp.saya.frame.shiro;
 
 import io.netty.util.internal.StringUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.authc.ExpiredCredentialsException;
+import org.apache.shiro.authc.IncorrectCredentialsException;
 import org.apache.shiro.web.filter.authc.BasicHttpAuthenticationFilter;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -46,8 +47,10 @@ public class JwtFilter extends BasicHttpAuthenticationFilter {
         try {
             getSubject(request, response).login(jwtToken);
             return true;
-        } catch (AuthenticationException e) {
-            responseError(request, response, e.getMessage());
+        } catch (ExpiredCredentialsException e) {
+            responseError(request, response, "Token过期，请重新登录");
+        } catch (IncorrectCredentialsException e) {
+            responseError(request, response, "Token错误，请输入正确的凭证");
         } catch (Exception e) {
             responseError(request, response, "已被JwtFilter拦截，具体异常未捕获");
         }

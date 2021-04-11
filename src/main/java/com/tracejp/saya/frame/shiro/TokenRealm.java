@@ -1,15 +1,11 @@
-package com.tracejp.saya.config.shiro;
+package com.tracejp.saya.frame.shiro;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
-import com.tracejp.saya.config.JwtManager;
+import com.tracejp.saya.frame.JwtManager;
 import com.tracejp.saya.service.UserService;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.shiro.authc.AuthenticationException;
-import org.apache.shiro.authc.AuthenticationInfo;
-import org.apache.shiro.authc.AuthenticationToken;
-import org.apache.shiro.authc.SimpleAuthenticationInfo;
+import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
@@ -31,9 +27,6 @@ public class TokenRealm extends AuthorizingRealm {
     @Autowired
     private JwtManager jwtManager;
 
-    /**
-     * 当前传入shiro封装令牌类型
-     */
     @Override
     public boolean supports(AuthenticationToken token) {
         return token instanceof JwtToken;
@@ -44,15 +37,14 @@ public class TokenRealm extends AuthorizingRealm {
      */
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
-        // token验证
         String jwt = (String) token.getCredentials();
-        // 异常转换
+        // jwt异常转换为shiro异常
         try {
             jwtManager.verifyToken(jwt);
         } catch (TokenExpiredException e) {
-            throw new AuthenticationException("Token已过期");
+            throw new ExpiredCredentialsException();
         } catch (JWTVerificationException e) {
-            throw new AuthenticationException("token验证失败");
+            throw new IncorrectCredentialsException();
         }
 
         String driveId = jwtManager.getDrive(jwt);

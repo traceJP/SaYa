@@ -1,4 +1,4 @@
-package com.tracejp.saya.config.shiro;
+package com.tracejp.saya.frame.shiro;
 
 import lombok.AllArgsConstructor;
 import org.apache.shiro.authc.AuthenticationToken;
