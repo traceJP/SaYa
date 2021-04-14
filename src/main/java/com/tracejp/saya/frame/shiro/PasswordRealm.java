@@ -1,7 +1,9 @@
 package com.tracejp.saya.frame.shiro;
 
 import com.tracejp.saya.model.entity.User;
+import com.tracejp.saya.model.enums.UserStatusEnum;
 import com.tracejp.saya.service.UserService;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
@@ -30,18 +32,24 @@ public class PasswordRealm extends AuthorizingRealm {
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
         UsernamePasswordToken tokenInfo = (UsernamePasswordToken) token;
-        Integer phone = Integer.valueOf(tokenInfo.getUsername());
-        String password = String.valueOf(tokenInfo.getPassword());
+        String clientPhone = tokenInfo.getUsername();
+        String clientPassword = String.valueOf(tokenInfo.getPassword());
 
-        User user = userService.queryUserByPhone(phone);
-        if(user == null) {
-            throw new AuthenticationException("账户不存在");
+        User user = userService.queryAllByPhone(clientPhone);
+        // 是否存在手机号
+        if (user == null) {
+            throw new UnknownAccountException();
         }
-        if(!password.equals(user.getPassword())) {
-            throw new AuthenticationException("密码错误");
+        // 密码是否正确
+        if (!StringUtils.equals(clientPassword, user.getPassword())) {
+            throw new IncorrectCredentialsException();
+        }
+        // 账号是否停用
+        if (StringUtils.equals(UserStatusEnum.DEACTIVATE.getValue(), user.getStatus())) {
+            throw new DisabledAccountException();
         }
 
-        return new SimpleAuthenticationInfo(user.getDriveId(), user.getPassword(), getName());
+        return new SimpleAuthenticationInfo(user, user.getPassword(), getName());
     }
 
     /**

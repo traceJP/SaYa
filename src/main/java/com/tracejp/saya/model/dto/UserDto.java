@@ -1,5 +1,7 @@
 package com.tracejp.saya.model.dto;
 
+import com.tracejp.saya.model.dto.base.OutputConverter;
+import com.tracejp.saya.model.entity.User;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -8,9 +10,7 @@ import lombok.Data;
  * @date 2021/4/10 20:07
  */
 @Data
-public class UserDto {
-
-    private String token;
+public class UserDto implements OutputConverter<UserDto, User> {
 
     private String driveId;
 

@@ -1,8 +1,6 @@
 package com.tracejp.saya.frame;
 
 import com.tracejp.saya.frame.shiro.*;
-import org.apache.shiro.authc.pam.AtLeastOneSuccessfulStrategy;
-import org.apache.shiro.authc.pam.ModularRealmAuthenticator;
 import org.apache.shiro.mgt.DefaultSessionStorageEvaluator;
 import org.apache.shiro.mgt.DefaultSubjectDAO;
 import org.apache.shiro.realm.Realm;
@@ -28,18 +26,19 @@ public class ShiroConfig {
      * shiro核心
      */
     @Bean
-    public DefaultWebSecurityManager securityManager(TokenRealm tokenRealm, PasswordRealm passwordRealm, SmsRealm smsRealm) {
+    public DefaultWebSecurityManager securityManager(TokenRealm tokenRealm,
+                                                     PasswordRealm passwordRealm, SmsRealm smsRealm) {
 
         DefaultWebSecurityManager manager = new DefaultWebSecurityManager();
 
         // 自定义多realm认证器，添加自定义realm
-        MultiRealmAuthenticator multiRealmAuthenticator = new MultiRealmAuthenticator();
+        MyMultiRealmAuthenticator myMultiRealmAuthenticator = new MyMultiRealmAuthenticator();
         List<Realm> realms = new LinkedList<>();
         realms.add(tokenRealm);
         realms.add(smsRealm);
         realms.add(passwordRealm);
-        multiRealmAuthenticator.setRealms(realms);
-        manager.setAuthenticator(multiRealmAuthenticator);
+        myMultiRealmAuthenticator.setRealms(realms);
+        manager.setAuthenticator(myMultiRealmAuthenticator);
 
         // 禁用shiro自带session
         DefaultSubjectDAO subjectDAO = new DefaultSubjectDAO();
@@ -66,10 +65,19 @@ public class ShiroConfig {
 
         // 过滤器规则
         Map<String, String> filterRuleMap = new LinkedHashMap<>();
-        // 接口规则设置
+
+        // swagger2接口
+        filterRuleMap.put("/docs", "anon");
+        filterRuleMap.put("/swagger-ui.html", "anon");
+        filterRuleMap.put("/webjars/springfox-swagger-ui/**", "anon");
+        filterRuleMap.put("/swagger-resources/**", "anon");
+        filterRuleMap.put("/v2/api-docs", "anon");
+        // 无权限跳转接口
         filterRuleMap.put("/unauthorized/**", "anon");
-        filterRuleMap.put("/login/**", "anon");    // 登录接口开放
-        filterRuleMap.put("/tbTemplate/getToken", "anon");    // 测试接口
+        // 登录接口
+        filterRuleMap.put("/login/**", "anon");
+        // 测试接口
+        filterRuleMap.put("/tbTemplate/getToken", "anon");
 
         // 所有请求都需要通过jwt拦截器
         filterRuleMap.put("/**", "jwt");

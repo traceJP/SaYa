@@ -26,20 +26,20 @@ public class LoginController {
 
     @ApiOperation("通过手机和密码登录")
     @GetMapping("/pwd")
-    public BaseResponse<UserDto> loginByPassword(Integer phone, String password) {
+    public BaseResponse<UserDto> loginByPassword(String phone, String password) {
         return userService.authenticateByPassword(phone, password);
     }
 
     @ApiOperation("通过手机和短信验证码登录")
     @GetMapping("/sms")
-    public BaseResponse<UserDto> loginBySms(Integer phone, String code) {
+    public BaseResponse<UserDto> loginBySms(String phone, String code) {
         return userService.authenticateBySms(phone, code);
     }
 
     @ApiOperation("获取短信验证码")
     @GetMapping("/get")
-    public BaseResponse<?> getSms(Integer phone, HttpServletRequest request) {
-        return userService.getAuthenticateSms(phone, request);
+    public BaseResponse<?> getSms(String phone) {
+        return userService.getAuthenticateSms(phone);
     }
 
 }

@@ -17,7 +17,7 @@ import java.util.Collection;
  * shiro底层多realm处理时出现异常覆盖错误，手动修改方法
  */
 @Slf4j
-public class MultiRealmAuthenticator extends ModularRealmAuthenticator {
+public class MyMultiRealmAuthenticator extends ModularRealmAuthenticator {
 
     @Override
     protected AuthenticationInfo doMultiRealmAuthentication(Collection<Realm> realms, AuthenticationToken token) {

@@ -1,11 +1,15 @@
 package com.tracejp.saya.frame.shiro;
 
-import org.apache.shiro.authc.AuthenticationException;
-import org.apache.shiro.authc.AuthenticationInfo;
-import org.apache.shiro.authc.AuthenticationToken;
+import com.tracejp.saya.handler.sms.SmsHandler;
+import com.tracejp.saya.model.entity.User;
+import com.tracejp.saya.model.enums.UserStatusEnum;
+import com.tracejp.saya.service.UserService;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -14,6 +18,12 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class SmsRealm extends AuthorizingRealm {
+
+    @Autowired
+    private SmsHandler smsHandler;
+
+    @Autowired
+    private UserService userService;
 
     @Override
     public boolean supports(AuthenticationToken token) {
@@ -25,8 +35,28 @@ public class SmsRealm extends AuthorizingRealm {
      */
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
+        SmsToken auth = (SmsToken) token;
+        String phone = (String) auth.getPrincipal();
+        String code = (String) auth.getCredentials();
 
-        return null;
+        // 检查手机验证码是否正确
+        if (!smsHandler.authenticate(phone, code)) {
+            throw new IncorrectCredentialsException();
+        }
+
+        User user = userService.queryAllByPhone(phone);
+
+        // 是否是新用户
+        if (user == null) {
+            user = userService.register(phone);
+        }
+
+        // 账号是否停用
+        if (StringUtils.equals(UserStatusEnum.DEACTIVATE.getValue(), user.getStatus())) {
+            throw new DisabledAccountException();
+        }
+
+        return new SimpleAuthenticationInfo(user, code, getName());
     }
 
     /**

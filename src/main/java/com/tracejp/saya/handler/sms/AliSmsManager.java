@@ -1,4 +1,4 @@
-package com.tracejp.saya.frame;
+package com.tracejp.saya.handler.sms;
 
 
 import com.aliyun.dysmsapi20170525.Client;
@@ -37,7 +37,7 @@ public class AliSmsManager {
      * @param templateName 短信模板名
      * @return 发送成功返回true，否则返回false
      */
-    public boolean sendSms(Integer phoneNumber, String templateName) {
+    public boolean sendSms(String phoneNumber, String templateName) {
         return sendSms(phoneNumber, templateName, null);
     }
 
@@ -48,7 +48,7 @@ public class AliSmsManager {
      * @param templateParam 短信参数
      * @return 发送成功返回true，否则返回false
      */
-    public boolean sendSms(Integer phoneNumber, String templateName, Map<String, String> templateParam) {
+    public boolean sendSms(String phoneNumber, String templateName, Map<String, String> templateParam) {
         SendSmsResponseBody body;
         try {
             Client client = createClient();
@@ -74,12 +74,12 @@ public class AliSmsManager {
      * 创建短信模板
      * @return SendSmsRequest
      */
-    private SendSmsRequest createSmsRequest(Integer phoneNumber, String templateName, Map<String, String> templateParam)
+    private SendSmsRequest createSmsRequest(String phoneNumber, String templateName, Map<String, String> templateParam)
             throws Exception {
 
         SendSmsRequest sendSmsRequest = new SendSmsRequest();
 
-        sendSmsRequest.setPhoneNumbers(String.valueOf(phoneNumber));
+        sendSmsRequest.setPhoneNumbers(phoneNumber);
 
         sendSmsRequest.setSignName(aliSmsProperties.getSignName());
 

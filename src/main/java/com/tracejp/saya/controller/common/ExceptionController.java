@@ -1,7 +1,8 @@
 package com.tracejp.saya.controller.common;
 
+import com.tracejp.saya.exception.RequestParamsException;
+import com.tracejp.saya.model.support.BadResponse;
 import com.tracejp.saya.model.support.BaseResponse;
-import org.apache.shiro.ShiroException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -21,14 +22,23 @@ public class ExceptionController {
 //    }
 
     /**
+     * 参数异常统一捕获
+     * @return 响应模板
+     */
+    @ExceptionHandler(RequestParamsException.class)
+    public BaseResponse<?> requestParamsException() {
+        String msg = "请求参数异常或者参数不完整";
+        return BadResponse.bad(msg);
+    }
+
+    /**
      * 所有控制层异常集中捕获（500）
      * @return 响应模板
      */
     @ExceptionHandler(Exception.class)
     public BaseResponse<?> globalException() {
-        return new BaseResponse<>()
-                .setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .setMessage("服务器内部出现问题");
+        String msg = "服务器内部出现问题";
+        return BadResponse.bad(HttpStatus.INTERNAL_SERVER_ERROR, msg);
     }
 
 }

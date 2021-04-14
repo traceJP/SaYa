@@ -3,8 +3,11 @@ package com.tracejp.saya.frame.shiro;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.tracejp.saya.frame.JwtManager;
+import com.tracejp.saya.model.entity.User;
+import com.tracejp.saya.model.enums.UserStatusEnum;
 import com.tracejp.saya.service.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
@@ -48,9 +51,13 @@ public class TokenRealm extends AuthorizingRealm {
         }
 
         String driveId = jwtManager.getDrive(jwt);
-        // TODO: 2021/4/8 查表，判断token用户是否被封禁等其他操作
+        User user = userService.queryAllByDrive(driveId);
+        // 账号是否停用
+        if (StringUtils.equals(UserStatusEnum.DEACTIVATE.getValue(), user.getStatus())) {
+            throw new DisabledAccountException();
+        }
 
-        return new SimpleAuthenticationInfo(driveId, jwt, getName());
+        return new SimpleAuthenticationInfo(user, jwt, getName());
     }
 
     /**

@@ -18,11 +18,16 @@ import javax.servlet.http.HttpServletRequest;
 public interface UserService {
 
     /**
+     * Token响应头key
+     */
+    String HEADER_TOKEN_NAME = "token";
+
+    /**
      * 用户注册
-     * @param user 用户实体
+     * @param phone 手机号
      * @return
      */
-    BaseResponse<UserDto> register(User user);
+    User register(String phone);
 
     /**
      * 手机密码登录认证
@@ -30,7 +35,7 @@ public interface UserService {
      * @param password 密码
      * @return
      */
-    BaseResponse<UserDto> authenticateByPassword(Integer phone, String password);
+    BaseResponse<UserDto> authenticateByPassword(String phone, String password);
 
     /**
      * 手机验证码登录认证
@@ -38,29 +43,34 @@ public interface UserService {
      * @param smsCode 短信验证码
      * @return
      */
-    BaseResponse<UserDto> authenticateBySms(Integer phone, String smsCode);
+    BaseResponse<UserDto> authenticateBySms(String phone, String smsCode);
 
     /**
      * 获取登录认证短信
      * @param phone 手机号
-     * @param request 请求实体
      * @return
      */
-    BaseResponse<?> getAuthenticateSms(Integer phone, HttpServletRequest request);
+    BaseResponse<?> getAuthenticateSms(String phone);
+
+    /**
+     * 登录更新
+     * @param drive 用户uuid
+     */
+    void loginUpdate(String drive);
 
     /**
      * 通过driveId获取用户信息
      * @param drive 用户uuid
      * @return User
      */
-    User queryUserByDrive(String drive);
+    User queryAllByDrive(String drive);
 
     /**
      * 通过手机号获取用户信息
      * @param phone 手机号
      * @return User
      */
-    User queryUserByPhone(Integer phone);
+    User queryAllByPhone(String phone);
 
     /**
      * 修改用户基本信息

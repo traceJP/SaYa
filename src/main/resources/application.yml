@@ -75,3 +75,10 @@ swagger2:
   serviceUrl: https://github.com/traceJP
   basePackage: com.tracejp.saya.controller
 
+#mybatis-plus配置
+mybatis-plus:
+  global-config:
+    db-config:
+      logic-delete-field: del_flag
+      logic-delete-value: 1
+      logic-not-delete-value: 0

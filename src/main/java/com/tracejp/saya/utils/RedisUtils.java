@@ -23,6 +23,21 @@ public class RedisUtils {
     private RedisTemplate<String, Object> redisTemplate;
 
     /**
+     * bit缓存放入
+     * @param key key
+     * @param offset 位移
+     * @param value 0或1
+     * @return
+     */
+    public boolean setBit(String key, long offset, boolean value) {
+        return redisTemplate.opsForValue().setBit(key, offset, value);
+    }
+
+//    public boolean getBitCount(String key) {
+//        return redisTemplate.opsForValue().
+//    }
+
+    /**
      * 指定缓存失效时间
      * @param key 键
      * @param time 时间(秒)
