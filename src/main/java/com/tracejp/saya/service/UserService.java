@@ -1,11 +1,8 @@
 package com.tracejp.saya.service;
 
-
 import com.tracejp.saya.model.dto.UserDto;
 import com.tracejp.saya.model.entity.User;
 import com.tracejp.saya.model.support.BaseResponse;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * <p>
@@ -21,6 +18,11 @@ public interface UserService {
      * Token响应头key
      */
     String HEADER_TOKEN_NAME = "token";
+
+    /**
+     * 登录短信模板
+     */
+    String SMS_LOGIN_TEMPLATE = "login";
 
     /**
      * 用户注册
@@ -53,12 +55,6 @@ public interface UserService {
     BaseResponse<?> getAuthenticateSms(String phone);
 
     /**
-     * 登录更新
-     * @param drive 用户uuid
-     */
-    void loginUpdate(String drive);
-
-    /**
      * 通过driveId获取用户信息
      * @param drive 用户uuid
      * @return User
@@ -82,12 +78,12 @@ public interface UserService {
      * 修改用户密码
      * @return
      */
-    BaseResponse<?> updatePassword();
+    BaseResponse<?> updatePassword(String oldPassword, String newPassword);
 
     /**
      * 修改手机号
      * @return
      */
-    BaseResponse<?> updatePhone();
+    BaseResponse<?> updatePhone(String newPhone, String code);
 
 }

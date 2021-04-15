@@ -1,6 +1,7 @@
 package com.tracejp.saya.handler.sms;
 
 
+import cn.hutool.core.util.RandomUtil;
 import com.aliyun.dysmsapi20170525.Client;
 import com.aliyun.dysmsapi20170525.models.SendSmsRequest;
 import com.aliyun.dysmsapi20170525.models.SendSmsResponse;
@@ -13,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -30,6 +32,24 @@ public class AliSmsManager {
      * 阿里发送短信后响应状态码
      */
     private static final String RESPONSE_CODE_OK = "OK";
+
+
+    /**
+     * 发送6位随机数字的短信验证码
+     * @param phoneNumber 手机号
+     * @param templateName 短信模板
+     * @return 验证码字符串
+     * @throws Exception 发送失败时抛出异常
+     */
+    public String sendVerificationCode(String phoneNumber, String templateName) throws Exception {
+        String code = String.valueOf(RandomUtil.randomInt(100000, 1000000));
+        Map<String, String> templateMap = new HashMap<>();
+        templateMap.put("code", code);
+        if (!sendSms(phoneNumber, templateName, templateMap)) {
+            throw new Exception();
+        }
+        return code;
+    }
 
     /**
      * 发送短信（无参数模板短信）

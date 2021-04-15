@@ -16,7 +16,10 @@ ali:
     endpoint:
     sign-name:
     template-code:
+      # 登录短信模板
       login:
+      # 修改手机短信模板
+      updatePhone:
 
 
 # 系统配置
@@ -40,8 +43,8 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/saya?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8&useSSL=true
-    username: root
-    password: 123456
+    username:
+    password:
     # druid连接池配置
     druid:
       # 初始连接数
@@ -56,7 +59,7 @@ spring:
   # redis配置
   redis:
     database: 1
-    host: tracejp.top
+    host:
     port: 6379
     password:
 

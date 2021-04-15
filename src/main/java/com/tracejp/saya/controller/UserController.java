@@ -4,11 +4,10 @@ package com.tracejp.saya.controller;
 import com.tracejp.saya.model.dto.UserDto;
 import com.tracejp.saya.model.entity.User;
 import com.tracejp.saya.model.support.BaseResponse;
+import com.tracejp.saya.service.UserService;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
 import org.springframework.stereotype.Controller;
 
@@ -22,18 +21,17 @@ import org.springframework.stereotype.Controller;
  */
 @Controller
 @RequestMapping("/user")
+@CrossOrigin
 public class UserController {
+
+    @Autowired
+    private UserService userService;
 
     @ApiOperation("通过driveId获取用户基本信息")
     @GetMapping("/get")
     public BaseResponse<UserDto> getUser(String drive) {
-        return null;
-    }
-
-    @ApiOperation("获取验证码")
-    @GetMapping("/code/get")
-    public BaseResponse<?> getSmsCode() {
-        return null;
+        UserDto userDto = new UserDto().convertFrom(userService.queryAllByDrive(drive));
+        return BaseResponse.ok(userDto);
     }
 
     @ApiOperation("修改用户基本信息")
