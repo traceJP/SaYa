@@ -2,7 +2,9 @@ package com.tracejp.saya.service;
 
 import com.tracejp.saya.model.dto.UserDto;
 import com.tracejp.saya.model.entity.User;
-import com.tracejp.saya.model.support.BaseResponse;
+import com.tracejp.saya.model.params.UserParam;
+
+import java.util.Optional;
 
 /**
  * <p>
@@ -37,7 +39,7 @@ public interface UserService {
      * @param password 密码
      * @return
      */
-    BaseResponse<UserDto> authenticateByPassword(String phone, String password);
+    Optional<UserDto> authenticateByPassword(String phone, String password);
 
     /**
      * 手机验证码登录认证
@@ -45,14 +47,14 @@ public interface UserService {
      * @param smsCode 短信验证码
      * @return
      */
-    BaseResponse<UserDto> authenticateBySms(String phone, String smsCode);
+    Optional<UserDto> authenticateBySms(String phone, String smsCode);
 
     /**
      * 获取登录认证短信
      * @param phone 手机号
      * @return
      */
-    BaseResponse<?> getAuthenticateSms(String phone);
+    void getAuthenticateSms(String phone);
 
     /**
      * 通过driveId获取用户信息
@@ -72,18 +74,18 @@ public interface UserService {
      * 修改用户基本信息
      * @return
      */
-    BaseResponse<UserDto> updateAssets();
+    Optional<UserDto> updateAssets(UserParam userParam);
 
     /**
      * 修改用户密码
      * @return
      */
-    BaseResponse<?> updatePassword(String oldPassword, String newPassword);
+    void updatePassword(String oldPassword, String newPassword);
 
     /**
      * 修改手机号
      * @return
      */
-    BaseResponse<?> updatePhone(String newPhone, String code);
+    void updatePhone(String newPhone, String code);
 
 }

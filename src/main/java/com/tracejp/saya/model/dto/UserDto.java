@@ -2,7 +2,6 @@ package com.tracejp.saya.model.dto;
 
 import com.tracejp.saya.model.dto.base.OutputConverter;
 import com.tracejp.saya.model.entity.User;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**

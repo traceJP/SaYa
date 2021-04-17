@@ -1,17 +1,21 @@
 package com.tracejp.saya.controller.open;
 
+import com.tracejp.saya.exception.NotFoundException;
 import com.tracejp.saya.model.dto.UserDto;
+import com.tracejp.saya.model.support.BadResponse;
 import com.tracejp.saya.model.support.BaseResponse;
 import com.tracejp.saya.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.shiro.authc.DisabledAccountException;
+import org.apache.shiro.authc.IncorrectCredentialsException;
+import org.apache.shiro.authc.UnknownAccountException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 /**
  * @author traceJP
@@ -24,16 +28,28 @@ import org.springframework.web.bind.annotation.RestController;
 public class LoginController {
 
     @Autowired
-    UserService userService;
+    private UserService userService;
 
     @ApiOperation("通过手机和密码登录")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "phone", value = "用户手机号"),
             @ApiImplicitParam(name = "password", value = "用户密码")
     })
-    @GetMapping("/pwd")
+    @PostMapping("/pwd")
     public BaseResponse<UserDto> loginByPassword(String phone, String password) {
-        return userService.authenticateByPassword(phone, password);
+        try {
+            Optional<UserDto> userDto = userService.authenticateByPassword(phone, password);
+            return BaseResponse.ok(userDto.orElseThrow(() -> new NotFoundException("用户信息未找到")));
+        } catch (UnknownAccountException e) {
+            String msg = "未知的手机号";
+            return BadResponse.bad(msg);
+        } catch (IncorrectCredentialsException e) {
+            String msg = "密码错误";
+            return BadResponse.bad(msg);
+        } catch (DisabledAccountException e) {
+            String msg = "账号已被禁用，请联系管理员";
+            return BadResponse.bad(msg);
+        }
     }
 
     @ApiOperation("通过手机和短信验证码登录")
@@ -41,16 +57,26 @@ public class LoginController {
             @ApiImplicitParam(name = "phone", value = "用户手机号"),
             @ApiImplicitParam(name = "code", value = "短信验证码")
     })
-    @GetMapping("/sms")
+    @PostMapping("/sms")
     public BaseResponse<UserDto> loginBySms(String phone, String code) {
-        return userService.authenticateBySms(phone, code);
+        try {
+            Optional<UserDto> userDto = userService.authenticateBySms(phone, code);
+            return BaseResponse.ok(userDto.orElseThrow(() -> new NotFoundException("用户信息未找到")));
+        } catch (IncorrectCredentialsException e) {
+            String msg = "验证码不正确";
+            return BadResponse.bad(msg);
+        } catch (DisabledAccountException e) {
+            String msg = "账号已被禁用，请联系管理员";
+            return BadResponse.bad(msg);
+        }
     }
 
     @ApiOperation("获取短信验证码")
     @ApiImplicitParam(name = "phone", value = "用户手机号")
     @GetMapping("/get")
     public BaseResponse<?> getSms(String phone) {
-        return userService.getAuthenticateSms(phone);
+        userService.getAuthenticateSms(phone);
+        return BaseResponse.ok("验证码已成功发送");
     }
 
 }

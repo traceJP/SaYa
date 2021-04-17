@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
  * @author traceJP
  * @date 2021/4/11 22:09
  */
-public class BadResponse extends BaseResponse<Object> {
+public class BadResponse<T> extends BaseResponse<T> {
 
     /**
      * 根据响应状态码和提示信息构造一个坏的响应

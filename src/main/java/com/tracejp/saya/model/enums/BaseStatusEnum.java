@@ -6,7 +6,7 @@ package com.tracejp.saya.model.enums;
  * @author traceJP
  * @since 2021/4/14 18:58
  */
-public enum UserStatusEnum implements ValueEnum<String> {
+public enum BaseStatusEnum implements ValueEnum<String> {
 
     /**
      * 正常
@@ -20,7 +20,7 @@ public enum UserStatusEnum implements ValueEnum<String> {
 
     private final String value;
 
-    UserStatusEnum(String value) {
+    BaseStatusEnum(String value) {
         this.value = value;
     }
 

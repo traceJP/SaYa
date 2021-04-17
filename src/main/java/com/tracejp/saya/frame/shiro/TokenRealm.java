@@ -4,7 +4,7 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.tracejp.saya.frame.JwtManager;
 import com.tracejp.saya.model.entity.User;
-import com.tracejp.saya.model.enums.UserStatusEnum;
+import com.tracejp.saya.model.enums.BaseStatusEnum;
 import com.tracejp.saya.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -53,7 +53,7 @@ public class TokenRealm extends AuthorizingRealm {
         String driveId = jwtManager.getDrive(jwt);
         User user = userService.queryAllByDrive(driveId);
         // 账号是否停用
-        if (StringUtils.equals(UserStatusEnum.DEACTIVATE.getValue(), user.getStatus())) {
+        if (StringUtils.equals(BaseStatusEnum.DEACTIVATE.getValue(), user.getStatus())) {
             throw new DisabledAccountException();
         }
 

@@ -1,7 +1,7 @@
 package com.tracejp.saya.frame.shiro;
 
 import com.tracejp.saya.model.entity.User;
-import com.tracejp.saya.model.enums.UserStatusEnum;
+import com.tracejp.saya.model.enums.BaseStatusEnum;
 import com.tracejp.saya.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authc.*;
@@ -45,7 +45,7 @@ public class PasswordRealm extends AuthorizingRealm {
             throw new IncorrectCredentialsException();
         }
         // 账号是否停用
-        if (StringUtils.equals(UserStatusEnum.DEACTIVATE.getValue(), user.getStatus())) {
+        if (StringUtils.equals(BaseStatusEnum.DEACTIVATE.getValue(), user.getStatus())) {
             throw new DisabledAccountException();
         }
 

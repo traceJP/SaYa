@@ -1,6 +1,7 @@
 package com.tracejp.saya.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.tracejp.saya.exception.ServiceException;
 import com.tracejp.saya.frame.JwtManager;
 import com.tracejp.saya.frame.shiro.SmsToken;
 import com.tracejp.saya.handler.sms.AliSmsManager;
@@ -8,8 +9,7 @@ import com.tracejp.saya.handler.sms.SmsHandler;
 import com.tracejp.saya.mapper.UserMapper;
 import com.tracejp.saya.model.dto.UserDto;
 import com.tracejp.saya.model.entity.User;
-import com.tracejp.saya.model.support.BadResponse;
-import com.tracejp.saya.model.support.BaseResponse;
+import com.tracejp.saya.model.params.UserParam;
 import com.tracejp.saya.service.UserService;
 import com.tracejp.saya.utils.RegexUtils;
 import com.tracejp.saya.utils.ServletUtils;
@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 
 /**
@@ -64,61 +65,33 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public BaseResponse<UserDto> authenticateByPassword(String phone, String password) {
+    public Optional<UserDto> authenticateByPassword(String phone, String password) {
         Subject subject = SecurityUtils.getSubject();
         UsernamePasswordToken token = new UsernamePasswordToken(String.valueOf(phone), password);
-        try {
-            subject.login(token);
-        } catch (UnknownAccountException e) {
-            String msg = "未知的手机号";
-            return BadResponse.bad(msg);
-        } catch (IncorrectCredentialsException e) {
-            String msg = "密码错误";
-            return BadResponse.bad(msg);
-        } catch (DisabledAccountException e) {
-            String msg = "账号已被禁用，请联系管理员";
-            return BadResponse.bad(msg);
-        }
-
+        subject.login(token);
         User user = (User) subject.getPrincipal();
-        String msg = "登录成功";
-        return BaseResponse.ok(msg, loginSuccess(user));
+        return Optional.of(new UserDto().convertFrom(user));
     }
 
     @Override
-    public BaseResponse<UserDto> authenticateBySms(String phone, String smsCode) {
+    public Optional<UserDto> authenticateBySms(String phone, String smsCode) {
         Subject subject = SecurityUtils.getSubject();
         SmsToken token = new SmsToken(phone, smsCode);
-        try {
-            subject.login(token);
-        } catch (IncorrectCredentialsException e) {
-            String msg = "验证码不正确";
-             return BadResponse.bad(msg);
-        } catch (DisabledAccountException e) {
-            String msg = "账号已被禁用，请联系管理员";
-            return BadResponse.bad(msg);
-        }
-
+        subject.login(token);
         User user = (User) subject.getPrincipal();
-        String msg = "登录成功";
-        return BaseResponse.ok(msg, loginSuccess(user));
+        return Optional.of(new UserDto().convertFrom(user));
     }
 
     @Override
-    public BaseResponse<?> getAuthenticateSms(String phone) {
+    public void getAuthenticateSms(String phone) {
+        if (!RegexUtils.isPhone(phone)) {
+            throw new ServiceException("手机号参数错误");
+        }
         String ip = ServletUtils.getRequestIp();
         log.info("请求发送登录短信：IP为{}; 手机号为{}", ip, phone);
         // 发送验证码
-        try {
-            String code = aliSmsManager.sendVerificationCode(phone, SMS_LOGIN_TEMPLATE);
-            smsHandler.remember(phone, code);
-        } catch (Exception e) {
-            log.warn("登录短信发送失败：IP为{}; 手机号为{}", ip, phone);
-            String msg = "短信发送失败，请勿频繁发送";
-            return BadResponse.bad(msg);
-        }
-        String msg = "短信发送成功";
-        return BaseResponse.ok(msg);
+        String code = aliSmsManager.sendVerificationCode(phone, SMS_LOGIN_TEMPLATE);
+        smsHandler.remember(phone, code);
     }
 
     @Override
@@ -134,40 +107,41 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public BaseResponse<UserDto> updateAssets() {
+    public Optional<UserDto> updateAssets(UserParam userParam) {
+//        String msg;
+//        if (userParam.getUserName().length() > 15) {
+//            msg = "用户名过长";
+//        }
+//        if (userParam.getAvatar())
+//        User user = userParam.convertTo();
         return null;
     }
 
     @Override
-    public BaseResponse<?> updatePassword(String oldPassword, String newPassword) {
+    public void updatePassword(String oldPassword, String newPassword) {
         Subject subject = SecurityUtils.getSubject();
         User user = (User) subject.getPrincipal();
 
         // 如果当前账户有密码
         if (StringUtils.isEmpty(user.getPassword())) {
-            // 旧密码和新密码不符合
             if (!StringUtils.equals(user.getPassword(), oldPassword)) {
-                String msg = "旧密码与原密码不匹配";
-                return BadResponse.bad(msg);
+                throw new ServiceException("旧密码和新密码不符合");
             }
         }
 
         // 新密码校验：必须大于8位且必须要有字母+数字
         if (newPassword.length() > 8 && RegexUtils.isENG_NUM(newPassword)) {
-            String msg = "新密码格式不符";
-            return BadResponse.bad(msg);
+            throw new ServiceException("新密码格式不符");
         }
 
         // 更新密码
         user.setPassword(newPassword);
         userMapper.updateById(user);
-        String msg = "更新密码成功";
-        return BaseResponse.ok(msg);
     }
 
     @Override
-    public BaseResponse<?> updatePhone(String newPhone, String code) {
-        return null;
+    public void updatePhone(String newPhone, String code) {
+
     }
 
     /**

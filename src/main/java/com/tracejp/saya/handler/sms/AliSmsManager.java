@@ -8,7 +8,9 @@ import com.aliyun.dysmsapi20170525.models.SendSmsResponse;
 import com.aliyun.dysmsapi20170525.models.SendSmsResponseBody;
 import com.aliyun.teaopenapi.models.Config;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tracejp.saya.exception.ServiceException;
 import com.tracejp.saya.frame.properties.AliSmsProperties;
+import com.tracejp.saya.utils.ServletUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,12 +43,13 @@ public class AliSmsManager {
      * @return 验证码字符串
      * @throws Exception 发送失败时抛出异常
      */
-    public String sendVerificationCode(String phoneNumber, String templateName) throws Exception {
+    public String sendVerificationCode(String phoneNumber, String templateName) {
         String code = String.valueOf(RandomUtil.randomInt(100000, 1000000));
         Map<String, String> templateMap = new HashMap<>();
         templateMap.put("code", code);
         if (!sendSms(phoneNumber, templateName, templateMap)) {
-            throw new Exception();
+            log.warn("登录短信发送失败：IP为{}; 手机号为{}", ServletUtils.getRequestIp(), phoneNumber);
+            throw new ServiceException("验证码发送失败，请勿重复尝试");
         }
         return code;
     }

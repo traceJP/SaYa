@@ -12,8 +12,7 @@ import org.springframework.lang.NonNull;
 public interface OutputConverter<DTO extends OutputConverter<DTO, DOMAIN>, DOMAIN> {
 
     /**
-     * 从域转换，浅拷贝
-     *
+     * 将域转换为dto，浅拷贝
      * @param domain 域数据
      * @return 拷贝类
      */
