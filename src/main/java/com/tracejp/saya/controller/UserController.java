@@ -30,7 +30,7 @@ public class UserController {
     @ApiOperation("通过driveId获取用户基本信息")
     @GetMapping("/get")
     public BaseResponse<UserDto> getUser(String drive) {
-        UserDto userDto = new UserDto().convertFrom(userService.queryAllByDrive(drive));
+        UserDto userDto = new UserDto().convertFrom(userService.getByDrive(drive));
         return BaseResponse.ok(userDto);
     }
 

@@ -51,7 +51,7 @@ public class TokenRealm extends AuthorizingRealm {
         }
 
         String driveId = jwtManager.getDrive(jwt);
-        User user = userService.queryAllByDrive(driveId);
+        User user = userService.getByDrive(driveId);
         // 账号是否停用
         if (StringUtils.equals(BaseStatusEnum.DEACTIVATE.getValue(), user.getStatus())) {
             throw new DisabledAccountException();

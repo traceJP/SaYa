@@ -44,7 +44,7 @@ public class SmsRealm extends AuthorizingRealm {
             throw new IncorrectCredentialsException();
         }
 
-        User user = userService.queryAllByPhone(phone);
+        User user = userService.getByPhone(phone);
 
         // 是否是新用户
         if (user == null) {

@@ -20,6 +20,12 @@ ali:
       login:
       # 修改手机短信模板
       updatePhone:
+# 本地文件存储路径配置
+local:
+  file:
+    basePath:
+    userAvatarPath:
+    fileSavePath:
 
 
 # 系统配置

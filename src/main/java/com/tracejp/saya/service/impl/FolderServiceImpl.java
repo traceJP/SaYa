@@ -75,7 +75,9 @@ public class FolderServiceImpl implements FolderService {
 
     @Override
     public Optional<Folder> getByHash(String folderHash) {
-        return null;
+        LambdaUpdateWrapper<Folder> wrapper = Wrappers.lambdaUpdate();
+        wrapper.eq(Folder::getFolderHash, folderHash);
+        return Optional.of(folderMapper.selectOne(wrapper));
     }
 
     @Override
@@ -85,7 +87,9 @@ public class FolderServiceImpl implements FolderService {
 
     @Override
     public List<Folder> getList(String folderHash) {
-        return null;
+        LambdaUpdateWrapper<Folder> wrapper = Wrappers.lambdaUpdate();
+        wrapper.eq(Folder::getFolderHash, folderHash);
+        return folderMapper.selectList(wrapper);
     }
 
 }

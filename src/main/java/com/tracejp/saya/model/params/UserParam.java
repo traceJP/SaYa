@@ -3,7 +3,6 @@ package com.tracejp.saya.model.params;
 import com.tracejp.saya.model.entity.User;
 import com.tracejp.saya.model.params.base.InputConverter;
 import lombok.Data;
-import org.springframework.web.multipart.MultipartFile;
 
 /**
  * @author traceJP
@@ -17,7 +16,5 @@ public class UserParam implements InputConverter<User> {
     private String email;
 
     private String sex;
-
-    private MultipartFile avatar;
 
 }

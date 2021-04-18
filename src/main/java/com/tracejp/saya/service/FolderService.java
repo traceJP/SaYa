@@ -1,9 +1,7 @@
 package com.tracejp.saya.service;
 
-import com.tracejp.saya.exception.ServiceException;
 import com.tracejp.saya.model.entity.Folder;
 import com.tracejp.saya.model.params.FolderParam;
-import com.tracejp.saya.model.support.BaseResponse;
 
 import java.util.List;
 import java.util.Optional;

@@ -34,20 +34,13 @@ public abstract class RedisCacheKeys {
      */
     public static final String SMS_CAPTCHA = "sms";
 
-    /**
-     * 短信手机痕迹key
-     */
-    public static final String SMS_PHONE_TRACE = "phone";
 
+// 头像文件缓存
     /**
-     * 短信ip痕迹key
+     * 头像删除标记key
      */
-    public static final String SMS_IP_TRACE = "ip";
+    public static final String AVATAR_DEL = "avatardel";
 
-    /**
-     * 短信黑名单key
-     */
-    public static final String SMS_BLACKLIST = "blacklist";
 
 
 

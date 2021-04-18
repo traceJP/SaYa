@@ -75,7 +75,7 @@ public class LoginController {
     @ApiImplicitParam(name = "phone", value = "用户手机号")
     @GetMapping("/get")
     public BaseResponse<?> getSms(String phone) {
-        userService.getAuthenticateSms(phone);
+        userService.getSms(phone, userService.SMS_LOGIN_TEMPLATE);
         return BaseResponse.ok("验证码已成功发送");
     }
 

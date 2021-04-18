@@ -3,6 +3,7 @@ package com.tracejp.saya.service;
 import com.tracejp.saya.model.dto.UserDto;
 import com.tracejp.saya.model.entity.User;
 import com.tracejp.saya.model.params.UserParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
 
@@ -50,42 +51,36 @@ public interface UserService {
     Optional<UserDto> authenticateBySms(String phone, String smsCode);
 
     /**
-     * 获取登录认证短信
+     * 获取短信
      * @param phone 手机号
      * @return
      */
-    void getAuthenticateSms(String phone);
+    void getSms(String phone, String template);
 
     /**
      * 通过driveId获取用户信息
      * @param drive 用户uuid
      * @return User
      */
-    User queryAllByDrive(String drive);
+    User getByDrive(String drive);
 
     /**
      * 通过手机号获取用户信息
      * @param phone 手机号
      * @return User
      */
-    User queryAllByPhone(String phone);
+    User getByPhone(String phone);
 
     /**
      * 修改用户基本信息
      * @return
      */
-    Optional<UserDto> updateAssets(UserParam userParam);
+    Optional<UserDto> updateAssets(UserParam userParam, MultipartFile avatar);
 
     /**
      * 修改用户密码
      * @return
      */
     void updatePassword(String oldPassword, String newPassword);
-
-    /**
-     * 修改手机号
-     * @return
-     */
-    void updatePhone(String newPhone, String code);
 
 }

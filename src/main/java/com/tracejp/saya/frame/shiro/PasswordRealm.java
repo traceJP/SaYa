@@ -35,7 +35,7 @@ public class PasswordRealm extends AuthorizingRealm {
         String clientPhone = tokenInfo.getUsername();
         String clientPassword = String.valueOf(tokenInfo.getPassword());
 
-        User user = userService.queryAllByPhone(clientPhone);
+        User user = userService.getByPhone(clientPhone);
         // 是否存在手机号
         if (user == null) {
             throw new UnknownAccountException();
