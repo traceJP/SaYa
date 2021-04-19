@@ -8,43 +8,8 @@ package com.tracejp.saya.model.constant;
 public abstract class RedisCacheKeys {
 
     /**
-     * 包分隔符
-     */
-    public static final String PACK = ":";
-
-    /**
-     * 域分隔符
-     */
-    public static final String DOMAIN = "::";
-
-    /**
-     * 用户模块域名
-     */
-    public static final String SYSTEM_DOMAIN = "sys";
-
-    /**
-     * 文件模块域名
-     */
-    public static final String CLOUD_DOMAIN = "cld";
-
-
-// 短信缓存
-    /**
      * 短信验证码key
      */
-    public static final String SMS_CAPTCHA = "sms";
-
-
-// 头像文件缓存
-    /**
-     * 头像删除标记key
-     */
-    public static final String AVATAR_DEL = "avatardel";
-
-
-
-
-
-
+    public static final String SMS_CAPTCHA_PREFIX = "sys::sms:";
 
 }

@@ -2,7 +2,7 @@ package com.tracejp.saya.utils;
 
 import com.tracejp.saya.exception.ServiceException;
 import com.tracejp.saya.model.entity.User;
-import com.tracejp.saya.model.support.BaseResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 
@@ -12,6 +12,7 @@ import org.apache.shiro.subject.Subject;
  * @author traceJP
  * @since 2021/4/16 16:11
  */
+@Slf4j
 public class SayaUtils {
 
     /**
@@ -44,6 +45,7 @@ public class SayaUtils {
      */
     public static void influence(Integer result) {
         if (result == null || result == 0) {
+            log.warn("数据库单条数据操作出现错误");
             throw new ServiceException("数据库增删改失败");
         }
     }

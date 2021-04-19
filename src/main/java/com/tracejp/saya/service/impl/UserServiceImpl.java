@@ -1,5 +1,6 @@
 package com.tracejp.saya.service.impl;
 
+import cn.hutool.crypto.digest.DigestUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.tracejp.saya.exception.ServiceException;
@@ -165,7 +166,7 @@ public class UserServiceImpl implements UserService {
 
         // 用户信息修改
         if (modified) {
-            userMapper.updateById(user);
+            SayaUtils.influence(userMapper.updateById(user));
         }
         return Optional.of(new UserDto().convertFrom(user));
     }
@@ -177,7 +178,7 @@ public class UserServiceImpl implements UserService {
 
         // 如果当前账户有密码
         if (StringUtils.isEmpty(user.getPassword())) {
-            if (!StringUtils.equals(user.getPassword(), oldPassword)) {
+            if (!StringUtils.equals(user.getPassword(), DigestUtil.md5Hex(oldPassword))) {
                 throw new ServiceException("旧密码和新密码不符合");
             }
         }
@@ -188,8 +189,8 @@ public class UserServiceImpl implements UserService {
         }
 
         // 更新密码
-        user.setPassword(newPassword);
-        userMapper.updateById(user);
+        user.setPassword(DigestUtil.md5Hex(newPassword));
+        SayaUtils.influence(userMapper.updateById(user));
     }
 
     /**

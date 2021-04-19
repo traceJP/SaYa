@@ -1,6 +1,5 @@
 package com.tracejp.saya.controller.common;
 
-import com.tracejp.saya.exception.ServiceException;
 import com.tracejp.saya.model.support.BadResponse;
 import com.tracejp.saya.model.support.BaseResponse;
 import org.springframework.http.HttpStatus;
@@ -22,21 +21,12 @@ public class ExceptionController {
 //    }
 
     /**
-     * 业务逻辑异常统一捕获
-     * @return 响应模板
-     */
-    @ExceptionHandler(ServiceException.class)
-    public BaseResponse<?> requestParamsException(ServiceException e) {
-        return BadResponse.bad(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
-    }
-
-    /**
      * 所有控制层异常集中捕获（500）
      * @return 响应模板
      */
     @ExceptionHandler(Exception.class)
-    public BaseResponse<?> globalException() {
-        String msg = "服务器内部出现问题";
+    public BaseResponse<?> globalException(Exception e) {
+        String msg = "服务器内部出现问题 --->  " + e;
         return BadResponse.bad(HttpStatus.INTERNAL_SERVER_ERROR, msg);
     }
 

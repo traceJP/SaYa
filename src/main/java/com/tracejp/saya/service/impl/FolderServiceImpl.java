@@ -51,7 +51,7 @@ public class FolderServiceImpl implements FolderService {
     }
 
     @Override
-    public Folder createFolder() {
+    public Folder createRoot() {
         Folder entity = new Folder();
         entity.setDriveId(SayaUtils.getDriveId());
         entity.setFolderRoot(YesNoStrEnum.YES.getValue());

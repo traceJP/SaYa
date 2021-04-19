@@ -1,5 +1,11 @@
 debug: false
 
+# 日志配置
+logging:
+  level:
+    com:
+      yanzhen:
+        mapper: debug
 
 # 个人配置
 jwt:
@@ -61,6 +67,13 @@ spring:
       maxActive: 20
       # 配置获取连接等待超时的时间
       maxWait: 60000
+      # web监控页
+      StatViewServlet:
+        enabled: true
+        url-pattern: /druid/*
+        reset-enable: false
+        login-username: admin
+        login-password: 123456
 
   # redis配置
   redis:
@@ -72,8 +85,16 @@ spring:
   servlet:
     # 文件上传配置
     multipart:
-      maxFileSize: 100MB
-      maxRequestSize: 100MB
+      maxFileSize: 30MB
+      maxRequestSize: 30MB
+
+#mybatis-plus配置
+mybatis-plus:
+  global-config:
+    db-config:
+      logic-delete-field: del_flag
+      logic-delete-value: 1
+      logic-not-delete-value: 0
 
 #swagger配置
 swagger2:
@@ -83,11 +104,3 @@ swagger2:
   version: 1.0.0
   serviceUrl: https://github.com/traceJP
   basePackage: com.tracejp.saya.controller
-
-#mybatis-plus配置
-mybatis-plus:
-  global-config:
-    db-config:
-      logic-delete-field: del_flag
-      logic-delete-value: 1
-      logic-not-delete-value: 0

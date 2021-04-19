@@ -2,6 +2,7 @@ package com.tracejp.saya.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.tracejp.saya.model.entity.Folder;
+import org.springframework.stereotype.Repository;
 
 /**
  * <p>
@@ -11,6 +12,7 @@ import com.tracejp.saya.model.entity.Folder;
  * @author TraceJP
  * @since 2021-04-06
  */
+@Repository
 public interface FolderMapper extends BaseMapper<Folder> {
 
 }

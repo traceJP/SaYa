@@ -1,6 +1,7 @@
 package com.tracejp.saya.frame;
 
 import com.tracejp.saya.frame.shiro.*;
+import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.mgt.DefaultSessionStorageEvaluator;
 import org.apache.shiro.mgt.DefaultSubjectDAO;
 import org.apache.shiro.realm.Realm;
@@ -30,6 +31,11 @@ public class ShiroConfig {
                                                      PasswordRealm passwordRealm, SmsRealm smsRealm) {
 
         DefaultWebSecurityManager manager = new DefaultWebSecurityManager();
+
+        // passwordRealm加密方式
+        HashedCredentialsMatcher hashedCredentialsMatcher = new HashedCredentialsMatcher();
+        hashedCredentialsMatcher.setHashAlgorithmName("MD5");
+        passwordRealm.setCredentialsMatcher(hashedCredentialsMatcher);
 
         // 自定义多realm认证器，添加自定义realm
         MyMultiRealmAuthenticator myMultiRealmAuthenticator = new MyMultiRealmAuthenticator();
@@ -72,6 +78,8 @@ public class ShiroConfig {
         filterRuleMap.put("/webjars/springfox-swagger-ui/**", "anon");
         filterRuleMap.put("/swagger-resources/**", "anon");
         filterRuleMap.put("/v2/api-docs", "anon");
+        // druid接口
+        filterRuleMap.put("/druid/**", "anon");
         // 无权限跳转接口
         filterRuleMap.put("/unauthorized/**", "anon");
         // 登录接口

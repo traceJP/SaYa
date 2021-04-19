@@ -1,8 +1,9 @@
 package com.tracejp.saya.controller;
 
 
+import com.tracejp.saya.exception.NotFoundException;
 import com.tracejp.saya.model.dto.UserDto;
-import com.tracejp.saya.model.entity.User;
+import com.tracejp.saya.model.params.UserParam;
 import com.tracejp.saya.model.support.BaseResponse;
 import com.tracejp.saya.service.UserService;
 import io.swagger.annotations.ApiOperation;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * <p>
@@ -28,22 +30,25 @@ public class UserController {
     private UserService userService;
 
     @ApiOperation("通过driveId获取用户基本信息")
-    @GetMapping("/get")
-    public BaseResponse<UserDto> getUser(String drive) {
+    @GetMapping("/get/{drive}")
+    public BaseResponse<UserDto> getUser(@PathVariable("drive") String drive) {
         UserDto userDto = new UserDto().convertFrom(userService.getByDrive(drive));
         return BaseResponse.ok(userDto);
     }
 
     @ApiOperation("修改用户基本信息")
     @PutMapping("/update/info")
-    public BaseResponse<UserDto> updateUser(@RequestBody User user) {
-        return null;
+    public BaseResponse<UserDto> updateUser(@RequestBody UserParam userParam, MultipartFile avatar) {
+        UserDto userDto = userService.updateAssets(userParam, avatar).orElseThrow(
+                () -> new NotFoundException("未找到用户信息"));
+        return BaseResponse.ok(userDto);
     }
 
-    @ApiOperation("修改用户手机号")
-    @PutMapping("/update/phone")
-    public BaseResponse<?> updateUserPhone(Integer phone, String code) {
-        return null;
+    @ApiOperation("修改用户密码")
+    @PutMapping("/update/pwd")
+    public BaseResponse<?> updatePassword(String oldPassword, String newPassword) {
+        userService.updatePassword(oldPassword, newPassword);
+        return BaseResponse.ok("重置密码成功");
     }
 
 }

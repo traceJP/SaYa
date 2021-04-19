@@ -16,7 +16,11 @@ import java.util.Optional;
  */
 public interface FolderService {
 
+    /**
+     * ROOT文件夹统一hash值
+     */
     String ROOT_FOLDER_HASH = "root";
+
 
     /**
      * 创建一个文件夹（非根目录）
@@ -29,7 +33,7 @@ public interface FolderService {
      * 创建一个文件夹（根目录）
      * @return 成功则创建的文件夹实体
      */
-    Folder createFolder();
+    Folder createRoot();
 
     /**
      * 修改文件夹基本信息

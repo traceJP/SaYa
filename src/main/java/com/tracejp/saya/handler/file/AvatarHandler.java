@@ -1,8 +1,7 @@
 package com.tracejp.saya.handler.file;
 
 import cn.hutool.core.util.IdUtil;
-import com.tracejp.saya.model.constant.RedisCacheKeys;
-import com.tracejp.saya.utils.RedisUtils;
+import com.tracejp.saya.utils.SayaUtils;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -26,22 +25,13 @@ import java.io.IOException;
 @Slf4j
 public class AvatarHandler {
 
-    @Autowired
-    private LocalFilePath localFilePath;
-
-    @Autowired
-    private RedisUtils redisUtils;
-
-    /**
-     * 头像文件标记删除key： sys::avatardel
-     */
-    private static final String CACHE_DEL_AVATAR = RedisCacheKeys.SYSTEM_DOMAIN + RedisCacheKeys.DOMAIN +
-            RedisCacheKeys.AVATAR_DEL;
-
     /**
      * 头像文件最大大小（字节） -> 5MB
      */
     public static final Integer AVATAR_MAX_SIZE = 1024 * 1024 * 5;
+
+    @Autowired
+    private LocalFilePath localFilePath;
 
     /**
      * 检查并保存头像
@@ -97,11 +87,23 @@ public class AvatarHandler {
     }
 
     /**
-     * 标记需要删除的头像文件路径
+     * 标记需要删除的头像文件路径（当前实现：将目标文件改名）
+     * 把文件后缀改为 原文件路径 + driveId.delete
      * @param path 头像文件路径
      */
     public void markDel(String path) {
-        redisUtils.sSet(CACHE_DEL_AVATAR, path);
+        String absolutePath = localFilePath.getPath("userAvatarPath") + path;
+        File file = new File(absolutePath);
+        // 文件重命名
+        if (file.isFile()) {
+            String newFilePath = absolutePath + "." + SayaUtils.getDriveId() + ".delete";
+            File newFile = new File(newFilePath);
+            if (!file.renameTo(newFile)) {
+                log.warn("本地头像文件重命名失败，路径为{}", absolutePath);
+            }
+        } else {
+            log.warn("本地头像文件未找到，路径为{}", absolutePath);
+        }
     }
 
     /**

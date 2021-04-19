@@ -22,13 +22,6 @@ public class SmsHandler {
 
 
     /**
-     * 短信缓存前缀
-     * sys::sms:{phone}
-     */
-    private static final String CACHE_KEY_PREFIX = RedisCacheKeys.SYSTEM_DOMAIN + RedisCacheKeys.DOMAIN +
-            RedisCacheKeys.SMS_CAPTCHA + RedisCacheKeys.PACK;
-
-    /**
      * 将目标手机号，验证码保存到redis中
      * @param phone 目标手机号
      * @param code 验证码
@@ -46,7 +39,7 @@ public class SmsHandler {
      * @return 认证成功返回true，否则返回false
      */
     public boolean authenticate(String phone, String code) {
-        String key = CACHE_KEY_PREFIX + phone;
+        String key = RedisCacheKeys.SMS_CAPTCHA_PREFIX + phone;
         CacheBuilder cache = (CacheBuilder) redisUtils.get(key);
         CacheBuilder auth = new CacheBuilder(phone, code);
         return auth.equals(cache);
@@ -80,7 +73,7 @@ public class SmsHandler {
          * @return 保存成功返回true，否则返回false
          */
         public boolean saveCache() {
-            String key = CACHE_KEY_PREFIX + phone;
+            String key = RedisCacheKeys.SMS_CAPTCHA_PREFIX + phone;
             return redisUtils.set(key, this, CACHE_KEY_TIME);
         }
 
