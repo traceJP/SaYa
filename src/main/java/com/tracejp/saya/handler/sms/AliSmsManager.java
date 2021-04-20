@@ -9,7 +9,7 @@ import com.aliyun.dysmsapi20170525.models.SendSmsResponseBody;
 import com.aliyun.teaopenapi.models.Config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tracejp.saya.exception.ServiceException;
-import com.tracejp.saya.frame.properties.AliSmsProperties;
+import com.tracejp.saya.model.properties.AliSmsProperties;
 import com.tracejp.saya.utils.ServletUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;

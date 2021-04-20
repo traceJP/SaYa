@@ -1,9 +1,9 @@
-package com.tracejp.saya.frame;
+package com.tracejp.saya.handler.token;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.tracejp.saya.frame.properties.JwtProperties;
+import com.tracejp.saya.model.properties.JwtProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -14,7 +14,7 @@ import java.util.Date;
  * @date 2021/4/8 17:09
  */
 @Component
-public class JwtManager {
+public class JwtHandler {
 
     @Autowired
     private JwtProperties properties;

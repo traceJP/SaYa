@@ -1,7 +1,7 @@
 package com.tracejp.saya.controller;
 
 
-import com.tracejp.saya.frame.JwtManager;
+import com.tracejp.saya.handler.token.JwtHandler;
 import com.tracejp.saya.service.TbTemplateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,7 +31,7 @@ public class TbTemplateController {
     }
 
     @Autowired
-    JwtManager manager;
+    JwtHandler manager;
 
     @GetMapping("/getToken")
     public String getToken() {

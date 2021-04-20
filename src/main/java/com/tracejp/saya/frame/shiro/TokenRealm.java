@@ -2,7 +2,7 @@ package com.tracejp.saya.frame.shiro;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
-import com.tracejp.saya.frame.JwtManager;
+import com.tracejp.saya.handler.token.JwtHandler;
 import com.tracejp.saya.model.entity.User;
 import com.tracejp.saya.model.enums.BaseStatusEnum;
 import com.tracejp.saya.service.UserService;
@@ -28,7 +28,7 @@ public class TokenRealm extends AuthorizingRealm {
     private UserService userService;
 
     @Autowired
-    private JwtManager jwtManager;
+    private JwtHandler jwtHandler;
 
     @Override
     public boolean supports(AuthenticationToken token) {
@@ -43,14 +43,14 @@ public class TokenRealm extends AuthorizingRealm {
         String jwt = (String) token.getCredentials();
         // jwt异常转换为shiro异常
         try {
-            jwtManager.verifyToken(jwt);
+            jwtHandler.verifyToken(jwt);
         } catch (TokenExpiredException e) {
             throw new ExpiredCredentialsException();
         } catch (JWTVerificationException e) {
             throw new IncorrectCredentialsException();
         }
 
-        String driveId = jwtManager.getDrive(jwt);
+        String driveId = jwtHandler.getDrive(jwt);
         User user = userService.getByDrive(driveId);
         // 账号是否停用
         if (StringUtils.equals(BaseStatusEnum.DEACTIVATE.getValue(), user.getStatus())) {

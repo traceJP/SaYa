@@ -1,6 +1,7 @@
 package com.tracejp.saya.handler.file;
 
 import cn.hutool.core.util.IdUtil;
+import com.tracejp.saya.model.properties.LocalPathProperties;
 import com.tracejp.saya.utils.SayaUtils;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -31,7 +32,8 @@ public class AvatarHandler {
     public static final Integer AVATAR_MAX_SIZE = 1024 * 1024 * 5;
 
     @Autowired
-    private LocalFilePath localFilePath;
+    private LocalPathProperties localPath;
+
 
     /**
      * 检查并保存头像
@@ -51,15 +53,14 @@ public class AvatarHandler {
      * @return 合格返回true，否则返回false
      */
     public boolean check(MultipartFile avatar) {
-        if (avatar == null || avatar.getSize() > AVATAR_MAX_SIZE) {
-            return false;
+        if (avatar != null || avatar.getSize() < AVATAR_MAX_SIZE) {
+            // 查看contentType是否为图片类型
+            if (avatar.getContentType() != null) {
+                String type = avatar.getContentType().split("/")[0];
+                return StringUtils.equals(type, "image");
+            }
         }
-        // 查看contentType是否为图片类型
-        if (avatar.getContentType() != null) {
-            String type = avatar.getContentType().split("/")[0];
-            return !StringUtils.equals(type, "image");
-        }
-        return true;
+        return false;
     }
 
     /**
@@ -73,8 +74,11 @@ public class AvatarHandler {
         if (avatar.getContentType() == null) {
             return new Result().setSuccess(false);
         }
+
+        // 构建目标文件路径
         String suffix = "." + avatar.getContentType().split("/")[1];
-        String path = localFilePath.getPath("userAvatarPath") + randomFileName + suffix;
+        String basePath = localPath.getUserAvatar();
+        String path = basePath + randomFileName + suffix;
         // 保存头像文件
         try {
             File file = new File(path);
@@ -92,7 +96,7 @@ public class AvatarHandler {
      * @param path 头像文件路径
      */
     public void markDel(String path) {
-        String absolutePath = localFilePath.getPath("userAvatarPath") + path;
+        String absolutePath = localPath.getUserAvatar() + path;
         File file = new File(absolutePath);
         // 文件重命名
         if (file.isFile()) {
@@ -131,7 +135,7 @@ public class AvatarHandler {
         private String suffix;
 
         public String getAbsolutePath() {
-            return localFilePath.getPath("userAvatarPath") + localName + suffix;
+            return localPath.getUserAvatar() + localName + suffix;
         }
 
         public String getRelativePath() {

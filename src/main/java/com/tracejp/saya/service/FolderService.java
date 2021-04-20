@@ -64,4 +64,10 @@ public interface FolderService {
      */
     List<Folder> getList(String folderHash);
 
+    /**
+     * 检查父节点是否存在
+     * @param parentHash
+     */
+    void hasFolder(String parentHash);
+
 }

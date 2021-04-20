@@ -29,9 +29,8 @@ ali:
 # 本地文件存储路径配置
 local:
   file:
-    basePath:
-    userAvatarPath:
-    fileSavePath:
+    user-avatar: F:\test\test\
+    file-save:
 
 
 # 系统配置
@@ -95,6 +94,9 @@ mybatis-plus:
       logic-delete-field: del_flag
       logic-delete-value: 1
       logic-not-delete-value: 0
+  # sql日志打印
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
 #swagger配置
 swagger2:

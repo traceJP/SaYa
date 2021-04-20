@@ -38,6 +38,9 @@ public class File extends SuperEntity {
     @ApiModelProperty(value = "文件名")
     private String fileName;
 
+    @ApiModelProperty(value = "文件MD5")
+    private String fileMd5;
+
     @ApiModelProperty(value = "文件哈希")
     private String fileHash;
 

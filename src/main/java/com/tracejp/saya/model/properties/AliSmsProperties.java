@@ -1,4 +1,4 @@
-package com.tracejp.saya.frame.properties;
+package com.tracejp.saya.model.properties;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

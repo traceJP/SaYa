@@ -1,6 +1,5 @@
 package com.tracejp.saya.controller;
 
-
 import com.tracejp.saya.exception.NotFoundException;
 import com.tracejp.saya.model.dto.UserDto;
 import com.tracejp.saya.model.params.UserParam;
@@ -21,7 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
  * @author TraceJP
  * @since 2021-04-06
  */
-@Controller
+@RestController
 @RequestMapping("/user")
 @CrossOrigin
 public class UserController {
@@ -38,7 +37,7 @@ public class UserController {
 
     @ApiOperation("修改用户基本信息")
     @PutMapping("/update/info")
-    public BaseResponse<UserDto> updateUser(@RequestBody UserParam userParam, MultipartFile avatar) {
+    public BaseResponse<UserDto> updateUser(@RequestPart(required = false) UserParam userParam, MultipartFile avatar) {
         UserDto userDto = userService.updateAssets(userParam, avatar).orElseThrow(
                 () -> new NotFoundException("未找到用户信息"));
         return BaseResponse.ok(userDto);

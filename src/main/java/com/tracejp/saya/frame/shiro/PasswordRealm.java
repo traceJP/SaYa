@@ -1,5 +1,6 @@
 package com.tracejp.saya.frame.shiro;
 
+import cn.hutool.crypto.digest.DigestUtil;
 import com.tracejp.saya.model.entity.User;
 import com.tracejp.saya.model.enums.BaseStatusEnum;
 import com.tracejp.saya.service.UserService;
@@ -33,8 +34,7 @@ public class PasswordRealm extends AuthorizingRealm {
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
         UsernamePasswordToken tokenInfo = (UsernamePasswordToken) token;
         String clientPhone = tokenInfo.getUsername();
-        String clientPassword = String.valueOf(tokenInfo.getPassword());
-
+        String clientPassword = DigestUtil.md5Hex(String.valueOf(tokenInfo.getPassword()));
         User user = userService.getByPhone(clientPhone);
         // 是否存在手机号
         if (user == null) {

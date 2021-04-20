@@ -4,7 +4,7 @@ import cn.hutool.crypto.digest.DigestUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.tracejp.saya.exception.ServiceException;
-import com.tracejp.saya.frame.JwtManager;
+import com.tracejp.saya.handler.token.JwtHandler;
 import com.tracejp.saya.frame.shiro.SmsToken;
 import com.tracejp.saya.handler.file.AvatarHandler;
 import com.tracejp.saya.handler.sms.AliSmsManager;
@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.Optional;
 
 
@@ -46,7 +47,7 @@ public class UserServiceImpl implements UserService {
     private UserMapper userMapper;
 
     @Autowired
-    private JwtManager jwtManager;
+    private JwtHandler jwtHandler;
 
     @Autowired
     private AliSmsManager aliSmsManager;
@@ -121,37 +122,41 @@ public class UserServiceImpl implements UserService {
         User user = SayaUtils.getUserByShiro();
         boolean modified = false;
 
-        // 用户名修改
-        if (StringUtils.isNotBlank(userParam.getUserName())) {
-            if (RegexUtils.isLengOut(userParam.getUserName(), 20)) {
-                throw new ServiceException("用户名过长");
+        if (Objects.nonNull(userParam)) {
+            // 用户名修改
+            if (StringUtils.isNotBlank(userParam.getUserName())) {
+                if (RegexUtils.isLengOut(userParam.getUserName(), 20)) {
+                    throw new ServiceException("用户名过长");
+                }
+                user.setUserName(userParam.getUserName());
+                modified = true;
             }
-            user.setUserName(userParam.getUserName());
-            modified = true;
-        }
 
-        // email修改
-        if (StringUtils.isNotBlank(userParam.getEmail())) {
-            if (!RegexUtils.isEmail(userParam.getEmail())) {
-                throw new ServiceException("email格式不正确");
+            // email修改
+            if (StringUtils.isNotBlank(userParam.getEmail())) {
+                if (RegexUtils.isEmail(userParam.getEmail())) {
+                    user.setEmail(userParam.getEmail());
+                    modified = true;
+                } else {
+                    throw new ServiceException("email格式不正确");
+                }
             }
-            user.setEmail(userParam.getEmail());
-            modified = true;
-        }
 
-        // 性别修改
-        if (StringUtils.isNotBlank(userParam.getSex())) {
-            if (StringUtils.equals(userParam.getSex(), "0") ||
-                    StringUtils.equals(userParam.getSex(), "1") ||
-                    StringUtils.equals(userParam.getSex(), "2")) {
-                throw new ServiceException("性别错误");
+            // 性别修改
+            if (StringUtils.isNotBlank(userParam.getSex())) {
+                if (StringUtils.equals(userParam.getSex(), "0") ||
+                        StringUtils.equals(userParam.getSex(), "1") ||
+                        StringUtils.equals(userParam.getSex(), "2")) {
+                    user.setSex(userParam.getSex());
+                    modified = true;
+                } else {
+                    throw new ServiceException("性别错误");
+                }
             }
-            user.setSex(userParam.getSex());
-            modified = true;
         }
 
         // 头像修改
-        if (!avatar.isEmpty()) {
+        if (Objects.nonNull(avatar) && !avatar.isEmpty()) {
             // 保存头像文件到本地
             AvatarHandler.Result result = avatarHandler.checkAndSave(avatar);
             if (result.getSuccess()) {
@@ -161,6 +166,8 @@ public class UserServiceImpl implements UserService {
                 }
                 user.setAvatar(result.getRelativePath());
                 modified = true;
+            } else {
+                throw new ServiceException("头像上传失败");
             }
         }
 
@@ -177,14 +184,14 @@ public class UserServiceImpl implements UserService {
         User user = (User) subject.getPrincipal();
 
         // 如果当前账户有密码
-        if (StringUtils.isEmpty(user.getPassword())) {
+        if (StringUtils.isNotEmpty(user.getPassword())) {
             if (!StringUtils.equals(user.getPassword(), DigestUtil.md5Hex(oldPassword))) {
                 throw new ServiceException("旧密码和新密码不符合");
             }
         }
 
         // 新密码校验：必须大于8位且必须要有字母+数字
-        if (newPassword.length() > 8 && RegexUtils.isENG_NUM(newPassword)) {
+        if (newPassword.length() < 8 && !RegexUtils.isENG_NUM(newPassword)) {
             throw new ServiceException("新密码格式不符");
         }
 
@@ -205,7 +212,7 @@ public class UserServiceImpl implements UserService {
         user.setLoginDate(LocalDateTime.now());
         userMapper.updateById(user);
         // 签发token
-        ServletUtils.setCurrentHeader(HEADER_TOKEN_NAME, jwtManager.getToken(user.getDriveId()));
+        ServletUtils.setCurrentHeader(HEADER_TOKEN_NAME, jwtHandler.getToken(user.getDriveId()));
         return userDto;
     }
 

@@ -1,6 +1,7 @@
 package com.tracejp.saya.service.impl;
 
 import cn.hutool.core.util.IdUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.tracejp.saya.exception.NotFoundException;
@@ -12,6 +13,7 @@ import com.tracejp.saya.model.enums.YesNoStrEnum;
 import com.tracejp.saya.model.params.FolderParam;
 import com.tracejp.saya.service.FolderService;
 import com.tracejp.saya.utils.SayaUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,6 +30,7 @@ import java.util.Optional;
  * @since 2021-04-06
  */
 @Service
+@Slf4j
 public class FolderServiceImpl implements FolderService {
 
     @Autowired
@@ -38,6 +41,10 @@ public class FolderServiceImpl implements FolderService {
         if (StringUtils.isAllBlank(folder.getFolderName(), folder.getFolderParentHash())) {
             throw new ServiceException("传入参数错误");
         }
+
+        // 检查是否存在父节点
+        hasFolder(folder.getFolderParentHash());
+
         // 构建entity新增记录
         Folder entity = folder.convertTo();
         entity.setDriveId(SayaUtils.getDriveId());
@@ -90,6 +97,16 @@ public class FolderServiceImpl implements FolderService {
         LambdaUpdateWrapper<Folder> wrapper = Wrappers.lambdaUpdate();
         wrapper.eq(Folder::getFolderHash, folderHash);
         return folderMapper.selectList(wrapper);
+    }
+
+    @Override
+    public void hasFolder(String parentHash) {
+        LambdaQueryWrapper<Folder> wrapper = Wrappers.lambdaQuery();
+        wrapper.eq(Folder::getFolderParentHash, parentHash);
+        if (folderMapper.selectCount(wrapper) == 0) {
+            log.warn("父文件节点不存在");
+            throw new ServiceException("传入参数父文件夹不存在");
+        }
     }
 
 }
