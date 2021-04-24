@@ -37,7 +37,7 @@ public class UserController {
 
     @ApiOperation("修改用户基本信息")
     @PutMapping("/update/info")
-    public BaseResponse<UserDto> updateUser(@RequestPart(required = false) UserParam userParam, MultipartFile avatar) {
+    public BaseResponse<UserDto> updateUser(UserParam userParam, @RequestPart(required = false) MultipartFile avatar) {
         UserDto userDto = userService.updateAssets(userParam, avatar).orElseThrow(
                 () -> new NotFoundException("未找到用户信息"));
         return BaseResponse.ok(userDto);

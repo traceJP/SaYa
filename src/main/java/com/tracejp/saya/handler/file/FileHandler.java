@@ -1,5 +1,18 @@
 package com.tracejp.saya.handler.file;
 
+import com.tracejp.saya.exception.ServiceException;
+import com.tracejp.saya.model.enums.AttachmentType;
+import com.tracejp.saya.model.params.UploadParam;
+import com.tracejp.saya.model.support.UploadResult;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 /**
  * <p>文件处理器接口<p/>
  *
@@ -8,51 +21,84 @@ package com.tracejp.saya.handler.file;
  */
 public interface FileHandler {
 
-    //
-    // 普通上传
-    // 断点续传
-    // 秒传（md5传）
-    // 分片上传
-    //
-    //    传输uuid，总分片数，当前分片数，每块分片的大小，当前分片内容（MultipartFile），总文件的唯一标识
-    //
-    // 1
-    //
-    // * 判断文件合并（所有分片均上传成功）方法由FileHandlerManager进行
-    //
-    // 每次上传时 -> 检查redis中是否存在有对应的传输uuid
-    //                  -> 不存在 -> 创建一条redis记录（根据总容量计算生命周期），保存新文件上传的基本内容，上传成功的分片数记录
-    //                  -> 存在   -> 检查当前分片数和总分片数之间的关系
-    //                                  -> 所有分片数上传成功 -> 触发合并文件方法
-    //                                  -> 存在分片未上传成功 -> 不做任何动作
+    /**
+     * 获取规范目录
+     * @param dir 目录绝对路径
+     * @return 规范目录路径
+     */
+    static String normalizeDirectory(String dir) {
+        if (StringUtils.isBlank(dir)) {
+            throw new ServiceException("指定文件目录不能为空");
+        }
+        return StringUtils.appendIfMissing(dir, File.pathSeparator);
+    }
 
+    /**
+     * 普通上传
+     * @param file
+     */
+    void upload(MultipartFile file);
 
+    /**
+     * 分片上传
+     * @param file UploadParam
+     */
+    UploadResult upload(UploadParam file);
 
-    // 文件处理接口方法
-    //   分片上传方法
-    //      参数：传输uuid，总分片数，当前分片数，每块分片的大小，当前分片内容（MultipartFile），总文件的唯一标识
-    //      返回值：统一返回一个上传结果集
-    //              结果集属性：传输uuid，总文件唯一标识，当前分片数，是否上传成功（响应码）
-    //
-    //   分片上传合并方法
-    //   分片上传异常处理方法
-    //
-    //
-    //   普通上传方法
-    //
-    //   分片下载方法
-    //   获取当前实现类标识方法
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
+    /**
+     * 初始化分片上传
+     * @return 需要保存的其他参数
+     */
+    default Map<String, Object> initUpload() {
+        return new HashMap<>();
+    }
 
+    /**
+     * 分片上传文件合并
+     * @param results 文件上传结果集合
+     */
+    void merge(Set<Object> results);
 
+    /**
+     * 分片上传文件终止
+     * @param file UploadParam
+     */
+    void abort(UploadParam file);
+
+    /**
+     * 通过文件哈希下载该文件
+     * @param fileHash 文件哈希
+     * @return 整个文件的输入流
+     */
+    default void download(String fileHash, HttpServletResponse response) {
+        download(fileHash, 0L, Long.MAX_VALUE, response);
+    }
+
+    /**
+     * 通过文件哈希下载指定字节的文件
+     * @param fileHash 文件哈希
+     * @param start 开始字节
+     * @param end 结束字节
+     * @return 指定字节的输入流
+     */
+    void download(String fileHash, Long start, Long end, HttpServletResponse response);
+
+    /**
+     * 通过文件哈希删除一个文件
+     * @param fileHash 文件哈希
+     */
+    void delete(String fileHash);
+
+    /**
+     * 数据库记录添加
+     * @param fileHash 记录哈希
+     */
+    void preserve(String fileHash);
+
+    /**
+     * 获取当前实现类的类型
+     * @return 处理器枚举
+     */
+    AttachmentType getAttachmentType();
 
 }

@@ -12,4 +12,14 @@ public abstract class RedisCacheKeys {
      */
     public static final String SMS_CAPTCHA_PREFIX = "sys::sms:";
 
+    /**
+     * 文件上传初始化key
+     */
+    public static final String FILE_INIT_PREFIX = "cld::fileinit:";
+
+    /**
+     * 文件上传key
+     */
+    public static final String FILE_UPLOAD_PREFIX = "cld::fileupload:";
+
 }
