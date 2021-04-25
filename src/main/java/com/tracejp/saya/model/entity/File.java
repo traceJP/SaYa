@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
 /**
  * <p>
@@ -19,7 +20,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("cld_file")
-@ApiModel(value="File对象", description="")
+@ApiModel(value="File对象", description="文件对象实体类")
 public class File extends SuperEntity {
 
 
@@ -33,7 +34,7 @@ public class File extends SuperEntity {
     private String folderHash;
 
     @ApiModelProperty(value = "文件上传id")
-    private Integer fileUploadId;
+    private String fileUploadId;
 
     @ApiModelProperty(value = "文件名")
     private String fileName;

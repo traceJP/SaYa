@@ -16,11 +16,6 @@ import java.util.Map;
 public class UploadResult implements InputConverter<UploadParam> {
 
     /**
-     * 文件上传id
-     */
-    private String identifier;
-
-    /**
      * 当前分片数
      */
     private Integer chunkNumber;

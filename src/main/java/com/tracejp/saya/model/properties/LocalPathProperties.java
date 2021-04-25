@@ -25,4 +25,9 @@ public class LocalPathProperties {
      */
     private String fileSave;
 
+    /**
+     * 文件保存临时目录
+     */
+    private String fileTmp;
+
 }

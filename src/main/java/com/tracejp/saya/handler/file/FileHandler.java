@@ -3,6 +3,7 @@ package com.tracejp.saya.handler.file;
 import com.tracejp.saya.exception.ServiceException;
 import com.tracejp.saya.model.enums.AttachmentType;
 import com.tracejp.saya.model.params.UploadParam;
+import com.tracejp.saya.model.support.TransportFile;
 import com.tracejp.saya.model.support.UploadResult;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -10,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -35,9 +37,9 @@ public interface FileHandler {
 
     /**
      * 普通上传
-     * @param file
+     * @param file MultipartFile
      */
-    void upload(MultipartFile file);
+    void upload(MultipartFile file, String fileKey);
 
     /**
      * 分片上传
@@ -56,44 +58,31 @@ public interface FileHandler {
     /**
      * 分片上传文件合并
      * @param results 文件上传结果集合
+     * @param transportFile 文件传输实体信息
      */
-    void merge(Set<Object> results);
+    void merge(List<UploadResult> results, TransportFile transportFile);
 
     /**
      * 分片上传文件终止
-     * @param file UploadParam
+     * @param transportFile 文件传输实体信息
      */
-    void abort(UploadParam file);
+    void abort(TransportFile transportFile);
 
     /**
      * 通过文件哈希下载该文件
-     * @param fileHash 文件哈希
-     * @return 整个文件的输入流
+     * @param fileKey 文件哈希
      */
-    default void download(String fileHash, HttpServletResponse response) {
-        download(fileHash, 0L, Long.MAX_VALUE, response);
+    default void download(String fileKey, HttpServletResponse response) {
+        download(fileKey, 0L, Long.MAX_VALUE, response);
     }
 
     /**
      * 通过文件哈希下载指定字节的文件
-     * @param fileHash 文件哈希
+     * @param fileKey 文件哈希
      * @param start 开始字节
      * @param end 结束字节
-     * @return 指定字节的输入流
      */
-    void download(String fileHash, Long start, Long end, HttpServletResponse response);
-
-    /**
-     * 通过文件哈希删除一个文件
-     * @param fileHash 文件哈希
-     */
-    void delete(String fileHash);
-
-    /**
-     * 数据库记录添加
-     * @param fileHash 记录哈希
-     */
-    void preserve(String fileHash);
+    void download(String fileKey, Long start, Long end, HttpServletResponse response);
 
     /**
      * 获取当前实现类的类型

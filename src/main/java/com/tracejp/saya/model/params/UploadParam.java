@@ -3,16 +3,19 @@ package com.tracejp.saya.model.params;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Map;
-
 /**
- * <p>文件分片上传参数<p/>
+ * <p>文件分片上传参数， 星号为必须<p/>
  *
  * @author traceJP
  * @since 2021/4/21 18:53
  */
 @Data
 public class UploadParam {
+
+    /**
+     * 是否开启分片上传 *
+     */
+    private Boolean enableChunk;
 
     /**
      * 当前分片数
@@ -50,12 +53,17 @@ public class UploadParam {
     private String filename;
 
     /**
-     * 相对路径（文件名.拓展名）
+     * 相对路径（文件名.拓展名）, 文件key
      */
     private String relativePath;
 
     /**
-     * 文件内容（需要手动设置）
+     * 父文件夹哈希 *
+     */
+    private String folderHash;
+
+    /**
+     * 文件内容 *
      */
     private MultipartFile file;
 
@@ -63,10 +71,5 @@ public class UploadParam {
      * 文件md5（用于秒传）
      */
     private String fileMd5;
-
-    /**
-     * 其他参数
-     */
-    private Map<String, Object> otherParam;
 
 }

@@ -21,7 +21,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("cld_share")
-@ApiModel(value="Share对象", description="")
+@ApiModel(value="Share对象", description="共享文件实体类")
 public class Share extends SuperEntity {
 
 
@@ -29,7 +29,7 @@ public class Share extends SuperEntity {
     private String delFlag;
 
     @ApiModelProperty(value = "文件所有者id（外键）")
-    private String dirveId;
+    private String driveId;
 
     @ApiModelProperty(value = "文件或文件夹哈希（外键）")
     private String hashId;

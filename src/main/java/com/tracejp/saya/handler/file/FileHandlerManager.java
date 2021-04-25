@@ -1,19 +1,22 @@
 package com.tracejp.saya.handler.file;
 
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.RandomUtil;
+import cn.hutool.crypto.digest.DigestUtil;
 import cn.hutool.extra.servlet.ServletUtil;
 import com.tracejp.saya.exception.FileTransportException;
 import com.tracejp.saya.exception.ServiceException;
 import com.tracejp.saya.model.constant.RedisCacheKeys;
 import com.tracejp.saya.model.entity.File;
 import com.tracejp.saya.model.enums.AttachmentType;
+import com.tracejp.saya.model.enums.BaseStatusEnum;
 import com.tracejp.saya.model.enums.ValueEnum;
+import com.tracejp.saya.model.enums.YesNoStrEnum;
 import com.tracejp.saya.model.params.UploadParam;
+import com.tracejp.saya.model.support.TransportFile;
 import com.tracejp.saya.model.support.UploadResult;
 import com.tracejp.saya.utils.RedisUtils;
 import com.tracejp.saya.utils.ServletUtils;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,8 +27,12 @@ import org.springframework.util.CollectionUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -64,36 +71,53 @@ public class FileHandlerManager {
     /**
      * 文件上传
      * @param param 上传参数
+     * @return 上传成功则返回上传的文件所有参数，未上传完成返回null，上传失败抛出异常
      */
-    public UploadInit doUpload(UploadParam param) {
-        UploadInit initEntity = (UploadInit) param;
+    public TransportFile doUpload(UploadParam param) {
 
-        AttachmentType type = isFirstUpload(param.getIdentifier());
-        if (type != null) {
-            // 是否全部上传完成
-            String key = RedisCacheKeys.FILE_UPLOAD_PREFIX + param.getIdentifier();
-            if (redisUtils.sGetSetSize(key) == param.getTotalChunks()) {
-                getSupportedType(type).merge(redisUtils.sGet(key));
-                cacheClear(key);
-                initEntity.setAllSuccess(true);
-                return initEntity;
+        // 做分片上传
+        if (param.getEnableChunk()) {
+            AttachmentType type = isFirstUpload(param.getIdentifier());
+
+            // 是否第一次上传
+            if (type != null) {
+                String key = RedisCacheKeys.FILE_UPLOAD_PREFIX + param.getIdentifier();
+
+                // 文件是否可以合并
+                if (redisUtils.sGetSetSize(key) == param.getTotalChunks()) {
+                    TransportFile transportFile = (TransportFile) redisUtils.get(key);
+                    // TODO: 2021/4/25 需要改成安全转换
+                    List<UploadResult> list = (List<UploadResult>)(List) redisUtils.lGet(key, 0, -1);
+                    getSupportedType(type).merge(list, transportFile);
+                    cacheClear(key);
+                    return transportFile;
+                }
+            } else if (param.getChunkNumber() == 1) {
+
+                // 是分片上传的第一片
+                type = initUpload(param);
+            } else {
+                ServletUtils.getCurrentResponse().orElseThrow(() -> new ServiceException("未找到请求体"))
+                        .setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+                throw new FileTransportException("上传超时，请重新上传整个文件");
             }
-        } else if (param.getChunkNumber() == 1) {    // 是分片上传的第一片
-            type = doInitUpload(param);
-        } else {
-            ServletUtils.getCurrentResponse().orElseThrow(() -> new ServiceException("未找到请求体"))
-                    .setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-            throw new FileTransportException("上传超时，请重新上传整个文件");
+
+            // 上传当前文件
+            UploadResult result = getSupportedType(type).upload(param);
+
+            // 记录上传片
+            cacheSlice(param.getIdentifier(), result);
+
+            return null;
         }
 
-        // 上传当前文件
-        UploadResult result = getSupportedType(type).upload(param);
+        // 单文件上传
+        TransportFile entity = builderTransportFile(param);
+        String fileKey = entity.getFileHash() + entity.getFileExtension();
+        getSupportedType(ValueEnum.valueToEnum(AttachmentType.class, entity.getFileSaveType()))
+                .upload(param.getFile(), fileKey);
+        return entity;
 
-        // 记录上传片
-        cacheSlice(param.getIdentifier(), result);
-
-        initEntity.setAllSuccess(false);
-        return initEntity;
     }
 
     /**
@@ -166,22 +190,68 @@ public class FileHandlerManager {
      * @param param UploadParam
      * @return 文件处理器
      */
-    private AttachmentType doInitUpload(UploadParam param) {
-        // 选择分发文件处理器
-        AttachmentType type = chooseType(param);
-
-        // 构造redis-key
-        String key = RedisCacheKeys.FILE_INIT_PREFIX + param.getIdentifier();
+    private AttachmentType initUpload(UploadParam param) {
 
         // 构造初始化文件上传实体
-        UploadInit initEntity = (UploadInit) param;
-        initEntity.setFileHandler(type);
-        initEntity.setOtherParam(getSupportedType(type).initUpload());
+        TransportFile entity = builderTransportFile(param);
 
         // 保存到redis中
-        redisUtils.set(key, initEntity, UPLOAD_TIMEOUT);
+        String key = RedisCacheKeys.FILE_INIT_PREFIX + param.getIdentifier();
+        redisUtils.set(key, entity, UPLOAD_TIMEOUT);
 
-        return type;
+        return ValueEnum.valueToEnum(AttachmentType.class, entity.getFileSaveType());
+    }
+
+    /**
+     * 构建传输对象
+     * @param param UploadParam
+     * @return TransportFile
+     */
+    private TransportFile builderTransportFile(UploadParam param) {
+
+        TransportFile file = new TransportFile();
+
+        // 选择分发文件处理器
+        AttachmentType type = chooseType(param);
+        file.setFileSaveType(type.getValue());
+
+        // 构建基本属性
+        file.setFileHash(IdUtil.fastSimpleUUID());
+        file.setFolderHash(param.getFolderHash());
+        file.setFileStatus(BaseStatusEnum.NORMAL.getValue());
+        file.setStarredFlag(YesNoStrEnum.NO.getValue());
+
+        // 根据是否分片上传分片构建属性
+        String fileKey;
+        if (param.getEnableChunk()) {
+            file.setFileUploadId(param.getIdentifier());
+            file.setFileMd5(param.getFileMd5());
+            file.setFileSize(String.valueOf(param.getTotalSize()));
+            // 文件处理器初始化参数保存
+            file.setOtherParam(getSupportedType(type).initUpload());
+            fileKey = param.getRelativePath();
+        } else {
+            file.setFileUploadId(IdUtil.fastSimpleUUID());
+            try {
+                file.setFileMd5(DigestUtil.md5Hex(param.getFile().getBytes()));
+            } catch (IOException e) {
+                log.warn("普通上传：获取上传文件字节数组出现异常");
+            }
+            file.setFileSize(String.valueOf(param.getFile().getSize()));
+            fileKey = param.getFile().getName();
+        }
+
+        // 文件名解析
+        int lastPoint = fileKey.lastIndexOf('.');
+        if (lastPoint == -1) {
+            file.setFileName(fileKey);
+            file.setFileExtension("");
+        } else {
+            file.setFileName(fileKey.substring(0, lastPoint - 1));
+            file.setFileExtension(fileKey.substring(lastPoint));
+        }
+        return file;
+
     }
 
     /**
@@ -201,7 +271,7 @@ public class FileHandlerManager {
      */
     private void cacheSlice(String uploadId, UploadResult result) {
         String key = RedisCacheKeys.FILE_UPLOAD_PREFIX + uploadId;
-        redisUtils.sSetAndTime(key, UPLOAD_TIMEOUT, result);
+        redisUtils.lSet(key, result, UPLOAD_TIMEOUT);
     }
 
     /**
@@ -211,6 +281,13 @@ public class FileHandlerManager {
     private void cacheClear(String uploadId) {
         String initKey = RedisCacheKeys.FILE_INIT_PREFIX + uploadId;
         String uploadKey = RedisCacheKeys.FILE_UPLOAD_PREFIX + uploadId;
+
+        // 交给对应文件处理器做清理动作
+        TransportFile transportFile = (TransportFile) redisUtils.get(initKey);
+        getSupportedType(ValueEnum.valueToEnum(AttachmentType.class, transportFile.getFileSaveType()))
+                .abort(transportFile);
+
+        // 清除redis缓存
         redisUtils.del(initKey, uploadKey);
     }
 
@@ -221,9 +298,10 @@ public class FileHandlerManager {
      */
     private AttachmentType isFirstUpload(String uploadId) {
         String key = RedisCacheKeys.FILE_INIT_PREFIX + uploadId;
-        UploadInit initEntity = (UploadInit) redisUtils.get(key);
-        if (Objects.nonNull(initEntity)) {
-            return initEntity.getFileHandler();
+        TransportFile transportFile = (TransportFile) redisUtils.get(key);
+        if (Objects.nonNull(transportFile)) {
+            String type = transportFile.getFileSaveType();
+            return ValueEnum.valueToEnum(AttachmentType.class, type);
         }
         return null;
     }
@@ -248,37 +326,18 @@ public class FileHandlerManager {
     }
 
     /**
-     * 获取文件处理程序集合中支持的类型对象，如果不存在对应处理器，则默认返回本地文件处理器
+     * 获取文件处理程序集合中支持的类型对象，不存在时抛出异常
      * @param type 类型对象
      * @return 对应的文件处理器
      */
     private FileHandler getSupportedType(AttachmentType type) {
-        FileHandler handler = fileHandlers.getOrDefault(type, fileHandlers.get(AttachmentType.LOCAL));
+        FileHandler handler = fileHandlers.get(type);
         if (handler == null) {
-            String msg = "没有可用的文件处理程序";
+            String msg = "文件处理程序不存在，请检查配置文件";
             log.error(msg);
             throw new ServiceException(msg);
         }
         return handler;
-    }
-
-    /**
-     * redis初始化保存实体
-     */
-    @Data
-    @EqualsAndHashCode(callSuper = true)
-    public class UploadInit extends UploadParam {
-
-        /**
-         * 所有文件上传成功
-         */
-        private boolean allSuccess;
-
-        /**
-         * 文件处理器类型
-         */
-        private AttachmentType fileHandler;
-
     }
 
 }
