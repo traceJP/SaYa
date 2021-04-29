@@ -124,14 +124,13 @@ public class LocalFileHandler implements FileHandler {
                 log.warn("下载文件：流跳过字节数未对齐");
             }
             byte[] buffer = new byte[102400];
-            long rangeLength = end - start + 1;
+            int rangeLength = Math.toIntExact(end - start + 1L);
             // 已读字节数
-            long sum = 0;
+            int sum = 0;
             // 单次读取字节数
             int length = 0;
             while (sum < rangeLength || length == -1) {
-                int len = (rangeLength - sum) <= buffer.length ?
-                        Math.toIntExact(rangeLength - sum) : buffer.length;
+                int len = Math.min((rangeLength - sum), buffer.length);
                 length = in.read(buffer, 0, len);
                 sum += length;
                 out.write(buffer, 0, length);

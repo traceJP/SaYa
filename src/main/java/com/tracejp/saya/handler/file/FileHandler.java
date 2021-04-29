@@ -13,7 +13,6 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * <p>文件处理器接口<p/>
@@ -32,7 +31,7 @@ public interface FileHandler {
         if (StringUtils.isBlank(dir)) {
             throw new ServiceException("指定文件目录不能为空");
         }
-        return StringUtils.appendIfMissing(dir, File.pathSeparator);
+        return StringUtils.appendIfMissing(dir, File.separator);
     }
 
     /**
@@ -72,8 +71,8 @@ public interface FileHandler {
      * 通过文件哈希下载该文件
      * @param fileKey 文件哈希
      */
-    default void download(String fileKey, HttpServletResponse response) {
-        download(fileKey, 0L, Long.MAX_VALUE, response);
+    default void download(String fileKey, Long totalSize, HttpServletResponse response) {
+        download(fileKey, 0L, totalSize, response);
     }
 
     /**

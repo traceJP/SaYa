@@ -15,7 +15,6 @@ import java.util.Optional;
  * @since 2021-04-06
  */
 public interface FolderService {
-
     /**
      * ROOT文件夹统一hash值
      */
@@ -65,9 +64,9 @@ public interface FolderService {
     List<Folder> getList(String folderHash);
 
     /**
-     * 检查父节点是否存在
-     * @param parentHash
+     * 检查文件夹节点是否存在
+     * @param folderHash 文件夹哈希
      */
-    void hasFolder(String parentHash);
+    void hasFolder(String folderHash);
 
 }

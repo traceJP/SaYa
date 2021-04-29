@@ -1,13 +1,14 @@
 package com.tracejp.saya.model.entity;
 
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.tracejp.saya.model.entity.base.SuperEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
 
 /**
  * <p>
@@ -25,6 +26,7 @@ public class File extends SuperEntity {
 
 
     @ApiModelProperty(value = "删除标志（0存在 1删除）")
+    @TableField(fill = FieldFill.INSERT)
     private String delFlag;
 
     @ApiModelProperty(value = "用户id（外键）")

@@ -13,9 +13,9 @@ import org.springframework.web.multipart.MultipartFile;
 public class UploadParam {
 
     /**
-     * 是否开启分片上传 *
+     * 是否开启分片上传
      */
-    private Boolean enableChunk;
+    private Boolean enableChunk = false;
 
     /**
      * 当前分片数

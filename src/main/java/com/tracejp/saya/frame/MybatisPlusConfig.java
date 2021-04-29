@@ -32,6 +32,8 @@ public class MybatisPlusConfig {
             public void insertFill(MetaObject metaObject) {
                 // 记录创建时间
                 this.strictInsertFill(metaObject, "gmtCreate", LocalDateTime.class, LocalDateTime.now());
+                // 记录修改时间
+                this.strictUpdateFill(metaObject, "gmtModified", LocalDateTime.class, LocalDateTime.now());
                 // 删除标志
                 this.strictInsertFill(metaObject, "delFlag", String.class, "0");
             }
@@ -60,4 +62,4 @@ public class MybatisPlusConfig {
          };
     }
 
-    }
+}

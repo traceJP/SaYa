@@ -13,10 +13,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import org.springframework.stereotype.Controller;
-
 import java.util.List;
-import java.util.Optional;
 
 /**
  * <p>
@@ -27,7 +24,7 @@ import java.util.Optional;
  * @since 2021-04-06
  */
 @Api("用户文件夹接口")
-@Controller
+@RestController
 @RequestMapping("/folder")
 @CrossOrigin
 public class FolderController {
@@ -38,9 +35,8 @@ public class FolderController {
     @ApiOperation("获取文件夹中的所有内容")
     @ApiImplicitParam(name = "folderHash", value = "文件夹哈希")
     @GetMapping("/list")
-    public BaseResponse<List<Object>> quireAll(String folderHash) {
-        List<Object> list = folderService.getAll(folderHash);
-        return BaseResponse.ok(list);
+    public List<Object> quireAll(String folderHash) {
+        return folderService.getAll(folderHash);
     }
 
     @ApiOperation("获取文件夹基本信息")
@@ -55,7 +51,7 @@ public class FolderController {
     @ApiImplicitParam(name = "folder", value = "文件夹名/父文件哈希/是否加星")
     @PostMapping("/create")
     public BaseResponse<Folder> createFolder(@RequestBody FolderParam folder) {
-        return BaseResponse.ok(folderService.createFolder(folder));
+        return BaseResponse.ok("已成功创建文件夹", folderService.createFolder(folder));
     }
 
     @ApiOperation("修改文件夹基本信息")

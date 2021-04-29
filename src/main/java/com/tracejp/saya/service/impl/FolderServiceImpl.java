@@ -11,6 +11,7 @@ import com.tracejp.saya.model.entity.Folder;
 import com.tracejp.saya.model.enums.BaseStatusEnum;
 import com.tracejp.saya.model.enums.YesNoStrEnum;
 import com.tracejp.saya.model.params.FolderParam;
+import com.tracejp.saya.service.FileService;
 import com.tracejp.saya.service.FolderService;
 import com.tracejp.saya.utils.SayaUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,6 +37,10 @@ public class FolderServiceImpl implements FolderService {
 
     @Autowired
     private FolderMapper folderMapper;
+
+    @Autowired
+    private FileService fileService;
+
 
     @Override
     public Folder createFolder(FolderParam folder) {
@@ -89,7 +95,10 @@ public class FolderServiceImpl implements FolderService {
 
     @Override
     public List<Object> getAll(String folderHash) {
-        return null;
+        List<Object> res = new ArrayList<>();
+        res.addAll(fileService.listByFolder(folderHash));
+        res.addAll(getList(folderHash));
+        return res;
     }
 
     @Override
@@ -100,9 +109,9 @@ public class FolderServiceImpl implements FolderService {
     }
 
     @Override
-    public void hasFolder(String parentHash) {
+    public void hasFolder(String folderHash) {
         LambdaQueryWrapper<Folder> wrapper = Wrappers.lambdaQuery();
-        wrapper.eq(Folder::getFolderParentHash, parentHash);
+        wrapper.eq(Folder::getFolderHash, folderHash);
         if (folderMapper.selectCount(wrapper) == 0) {
             log.warn("父文件节点不存在");
             throw new ServiceException("传入参数父文件夹不存在");
