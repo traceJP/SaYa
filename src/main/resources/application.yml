@@ -1,5 +1,11 @@
 debug: false
 
+# 系统配置
+server:
+  port: 8081
+  compression:
+    enabled: false
+
 # 日志配置
 logging:
   level:
@@ -7,14 +13,26 @@ logging:
       yanzhen:
         mapper: debug
 
-# 个人配置
+# 令牌配置
 jwt:
   token:
     header:
       name: tracejp
       object: saya
-    expired: 1000000
+    expired: 100000000
     sign: saya
+
+# 本地文件存储路径配置，可以通过配置local.file.enable=false关闭本地文件处理器
+local:
+  file:
+    # 头像保存目录
+    user-avatar:
+    # 文件保存目录
+    file-save:
+    # 临时文件存储目录
+    file-tmp:
+
+# 阿里-第三方配置
 ali:
   sms:
     access-key-id:
@@ -26,19 +44,14 @@ ali:
       login:
       # 修改手机短信模板
       updatePhone:
-# 本地文件存储路径配置
-local:
-  file:
-    user-avatar: F:\test\test\
-    file-save:
+  oss:
+    enable: true
+    access-key-id:
+    access-key-secret:
+    endpoint:
+    bucketName:
 
-
-# 系统配置
-server:
-  port: 8081
-  compression:
-    enabled: false
-
+# spring整合配置
 spring:
   # 热部署
   devtools:

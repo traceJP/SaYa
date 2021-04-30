@@ -50,9 +50,9 @@ public class FileHandlerManager {
     private final ConcurrentHashMap<AttachmentType, FileHandler> fileHandlers = new ConcurrentHashMap<>(16);
 
     /**
-     * 文件上传有效时间 -> 3小时
+     * 文件上传有效时间 -> 1小时
      */
-    private static final long UPLOAD_TIMEOUT = 60 << 2 * 3;
+    private static final long UPLOAD_TIMEOUT = 60 << 2;
 
 
     @Autowired
@@ -79,21 +79,25 @@ public class FileHandlerManager {
 
             // 首次分片上传
             if (param.getChunkNumber() == 1) {
-                AttachmentType type = initUpload(param);
-                UploadResult result = getSupportedType(type).upload(param);
+                TransportFile file = initUpload(param);
+                AttachmentType type = ValueEnum.valueToEnum(AttachmentType.class, file.getFileSaveType());
+                UploadResult result = getSupportedType(type).upload(param, file);
                 cacheSlice(param.getIdentifier(), result);
             } else {
 
                 // 非首次上传
-                AttachmentType type = getFirstUpload(param.getIdentifier());
-                if (Objects.nonNull(type)) {
+                TransportFile file = getFirstUpload(param.getIdentifier());
+                if (Objects.nonNull(file)) {
 
-                    UploadResult result = getSupportedType(type).upload(param);
-                    cacheSlice(param.getIdentifier(), result);
-
-                    // 文件合并判断
+                    AttachmentType type = ValueEnum.valueToEnum(AttachmentType.class, file.getFileSaveType());
                     String uploadKey = RedisCacheKeys.FILE_UPLOAD_PREFIX + param.getIdentifier();
                     String initKey = RedisCacheKeys.FILE_INIT_PREFIX + param.getIdentifier();
+
+                    // 上传当前分片
+                    UploadResult result = getSupportedType(type).upload(param, (TransportFile) redisUtils.get(initKey));
+                    cacheSlice(param.getIdentifier(), result);
+
+                    // 合并判断
                     boolean isMerge = false;
                     TransportFile transportFile = null;
                     List<UploadResult> list = null;
@@ -105,7 +109,9 @@ public class FileHandlerManager {
                             redisUtils.del(initKey, uploadKey);
                         }
                     }
-                    if (isMerge) {
+
+                    // 合并操作
+                    if (isMerge && Objects.nonNull(transportFile) && Objects.nonNull(list)) {
                         getSupportedType(type).merge(list, transportFile);
                         return transportFile;
                     }
@@ -202,16 +208,19 @@ public class FileHandlerManager {
      * @param param UploadParam
      * @return 文件处理器
      */
-    private AttachmentType initUpload(UploadParam param) {
+    private TransportFile initUpload(UploadParam param) {
 
         // 构造初始化文件上传实体
         TransportFile entity = builderTransportFile(param);
+        AttachmentType type = ValueEnum.valueToEnum(AttachmentType.class, entity.getFileSaveType());
+        entity.setOtherParam(getSupportedType(type)
+                .initUpload(entity.getFileHash() + entity.getFileExtension()));
 
         // 保存到redis中
         String key = RedisCacheKeys.FILE_INIT_PREFIX + param.getIdentifier();
         redisUtils.set(key, entity, UPLOAD_TIMEOUT);
 
-        return ValueEnum.valueToEnum(AttachmentType.class, entity.getFileSaveType());
+        return entity;
     }
 
     /**
@@ -240,8 +249,6 @@ public class FileHandlerManager {
         if (param.getEnableChunk()) {
             file.setFileUploadId(param.getIdentifier());
             file.setFileSize(String.valueOf(param.getTotalSize()));
-            // 文件处理器初始化参数保存
-            file.setOtherParam(getSupportedType(type).initUpload());
             fileKey = param.getRelativePath();
         } else {
             file.setFileUploadId(IdUtil.fastSimpleUUID());
@@ -291,14 +298,13 @@ public class FileHandlerManager {
      * @param uploadId 缓存键后缀-上传id
      * @return 存在缓存返回对应文件处理器枚举，不存在返回null
      */
-    private AttachmentType getFirstUpload(String uploadId) {
+    private TransportFile getFirstUpload(String uploadId) {
         String key = RedisCacheKeys.FILE_INIT_PREFIX + uploadId;
         try {
             for (int i = 0; i < 5; i++) {
                 TransportFile transportFile = (TransportFile) redisUtils.get(key);
                 if (Objects.nonNull(transportFile)) {
-                    String type = transportFile.getFileSaveType();
-                    return ValueEnum.valueToEnum(AttachmentType.class, type);
+                    return transportFile;
                 }
                 Thread.sleep(200);
             }

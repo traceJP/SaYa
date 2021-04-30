@@ -37,35 +37,38 @@ public interface FileHandler {
     /**
      * 普通上传
      * @param file MultipartFile
+     * @param fileKey 文件key
      */
     void upload(MultipartFile file, String fileKey);
 
     /**
      * 分片上传
      * @param file UploadParam
+     * @param initFile 初始化文件分片
      */
-    UploadResult upload(UploadParam file);
+    UploadResult upload(UploadParam file, TransportFile initFile);
 
     /**
      * 初始化分片上传
+     * @param fileKey 文件key
      * @return 需要保存的其他参数
      */
-    default Map<String, Object> initUpload() {
+    default Map<String, Object> initUpload(String fileKey) {
         return new HashMap<>();
     }
 
     /**
      * 分片上传文件合并
      * @param results 文件上传结果集合
-     * @param transportFile 文件传输实体信息
+     * @param initFile 文件传输实体信息
      */
-    void merge(List<UploadResult> results, TransportFile transportFile);
+    void merge(List<UploadResult> results, TransportFile initFile);
 
     /**
      * 分片上传文件终止
-     * @param transportFile 文件传输实体信息
+     * @param initFile 文件传输实体信息
      */
-    void abort(TransportFile transportFile);
+    void abort(TransportFile initFile);
 
     /**
      * 通过文件哈希下载该文件

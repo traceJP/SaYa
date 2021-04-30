@@ -9,6 +9,7 @@ import com.tracejp.saya.model.support.UploadResult;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,6 +27,7 @@ import java.util.*;
  */
 @Component
 @Slf4j
+@ConditionalOnProperty(prefix = "local.file", name = "enable", havingValue = "true", matchIfMissing = true)
 public class LocalFileHandler implements FileHandler {
 
     /**
@@ -43,7 +45,7 @@ public class LocalFileHandler implements FileHandler {
     }
 
     @Override
-    public UploadResult upload(UploadParam file) {
+    public UploadResult upload(UploadParam file, TransportFile initFile) {
         String filenameSuffix = IdUtil.fastSimpleUUID();
         String path = FileHandler.normalizeDirectory(basePath.getFileTmp()) +
                 file.getIdentifier() + "-" + filenameSuffix;
@@ -59,15 +61,15 @@ public class LocalFileHandler implements FileHandler {
     }
 
     @Override
-    public void merge(List<UploadResult> results, TransportFile transportFile) {
+    public void merge(List<UploadResult> results, TransportFile initFile) {
 
         // 文件保存路径
         String filePath = FileHandler.normalizeDirectory(basePath.getFileSave()) +
-                transportFile.getFileName() + transportFile.getFileExtension();
+                initFile.getFileHash() + initFile.getFileExtension();
 
         // 临时文件保存路径前缀
         String prefix = FileHandler.normalizeDirectory(basePath.getFileTmp()) +
-                transportFile.getFileUploadId() + "-";
+                initFile.getFileUploadId() + "-";
 
         // 按分片数排序
         results.sort(Comparator.comparing(UploadResult::getChunkNumber));
@@ -90,20 +92,20 @@ public class LocalFileHandler implements FileHandler {
         }
 
         // 清除所有临时分片
-        abort(transportFile);
+        abort(initFile);
 
         log.trace("文件合并成功");
     }
 
     @Override
-    public void abort(TransportFile transportFile) {
+    public void abort(TransportFile initFile) {
         String folderPath = FileHandler.normalizeDirectory(basePath.getFileTmp());
         File tmpFolder = new File(folderPath);
         String[] listAll = tmpFolder.list();
         if (Objects.nonNull(listAll)) {
             // 遍历本地临时文件夹
             for (String filename : listAll) {
-                if (StringUtils.equals(filename.split("-")[0], transportFile.getFileUploadId())) {
+                if (StringUtils.equals(filename.split("-")[0], initFile.getFileUploadId())) {
                    File file = new File(folderPath + filename);
                    if (!file.delete()) {
                        log.warn("临时文件删除失败");

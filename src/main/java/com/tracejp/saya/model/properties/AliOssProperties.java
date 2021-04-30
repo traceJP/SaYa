@@ -15,8 +15,29 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties("ali.oss")
 public class AliOssProperties {
 
+    /**
+     * 是否开启
+     */
+    private String enable;
 
+    /**
+     * 地域
+     */
+    private String endpoint;
 
+    /**
+     * 阿里AccessKeyId
+     */
+    private String accessKeyId;
 
+    /**
+     * 阿里AccessKeySecret
+     */
+    private String accessKeySecret;
+
+    /**
+     * oss容器
+     */
+    private String bucketName;
 
 }
