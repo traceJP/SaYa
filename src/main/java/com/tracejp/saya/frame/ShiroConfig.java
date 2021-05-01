@@ -44,6 +44,7 @@ public class ShiroConfig {
         realms.add(smsRealm);
         realms.add(passwordRealm);
         myMultiRealmAuthenticator.setRealms(realms);
+        manager.setRealms(realms);
         manager.setAuthenticator(myMultiRealmAuthenticator);
 
         // 禁用shiro自带session

@@ -102,7 +102,7 @@ public class FileHandlerManager {
                     TransportFile transportFile = null;
                     List<UploadResult> list = null;
                     synchronized (this) {
-                        if (redisUtils.lGetListSize(uploadKey) == param.getTotalChunks()) {
+                        if (redisUtils.lGetListSize(uploadKey) >= param.getTotalChunks()) {
                             isMerge = true;
                             transportFile = (TransportFile) redisUtils.get(initKey);
                             list = (List) redisUtils.lGet(uploadKey, 0, -1);

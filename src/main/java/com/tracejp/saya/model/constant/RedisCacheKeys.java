@@ -7,6 +7,8 @@ package com.tracejp.saya.model.constant;
  */
 public abstract class RedisCacheKeys {
 
+// redis-key
+
     /**
      * 短信验证码key
      */
@@ -21,5 +23,15 @@ public abstract class RedisCacheKeys {
      * 文件上传key
      */
     public static final String FILE_UPLOAD_PREFIX = "cld::fileupload:";
+
+
+
+// spring-cache
+
+    /**
+     * 用户信息缓存
+     */
+    public static final String USER_INFO_DOMAIN = "user";
+
 
 }

@@ -10,6 +10,7 @@ import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 /**
@@ -20,10 +21,12 @@ import org.springframework.stereotype.Component;
 public class SmsRealm extends AuthorizingRealm {
 
     @Autowired
-    private SmsHandler smsHandler;
+    @Lazy
+    private UserService userService;
 
     @Autowired
-    private UserService userService;
+    private SmsHandler smsHandler;
+
 
     @Override
     public boolean supports(AuthenticationToken token) {
@@ -64,6 +67,7 @@ public class SmsRealm extends AuthorizingRealm {
      */
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
+        // 唯一授权方法参考TokenRealm类
         return null;
     }
 

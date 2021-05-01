@@ -14,6 +14,7 @@ import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 /**
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Component;
 public class TokenRealm extends AuthorizingRealm {
 
     @Autowired
+    @Lazy
     private UserService userService;
 
     @Autowired
@@ -65,12 +67,13 @@ public class TokenRealm extends AuthorizingRealm {
      */
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
-
-
         SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
-
-        // TODO: 2021/4/8 通过数据库查询权限信息
-
+        User user = (User) principals.getPrimaryPrincipal();
+        String userType = user.getUserType();
+        // 系统用户角色授权
+        if (StringUtils.equals(userType, "00")) {
+            info.addRole("admin");
+        }
         return info;
     }
 

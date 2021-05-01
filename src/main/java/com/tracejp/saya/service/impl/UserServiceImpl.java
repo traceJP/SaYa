@@ -10,6 +10,7 @@ import com.tracejp.saya.handler.file.AvatarHandler;
 import com.tracejp.saya.handler.sms.AliSmsManager;
 import com.tracejp.saya.handler.sms.SmsHandler;
 import com.tracejp.saya.mapper.UserMapper;
+import com.tracejp.saya.model.constant.RedisCacheKeys;
 import com.tracejp.saya.model.dto.UserDto;
 import com.tracejp.saya.model.entity.User;
 import com.tracejp.saya.model.params.UserParam;
@@ -23,6 +24,8 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -104,6 +107,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Cacheable(cacheNames = RedisCacheKeys.USER_INFO_DOMAIN)
     public User getByDrive(String drive) {
         LambdaQueryWrapper<User> wrapper = Wrappers.lambdaQuery();
         wrapper.eq(User::getDriveId, drive);
@@ -118,6 +122,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @CacheEvict(cacheNames = RedisCacheKeys.USER_INFO_DOMAIN, key = "T(com.tracejp.saya.utils.SayaUtils).driveId")
     public Optional<UserDto> updateAssets(UserParam userParam, MultipartFile avatar) {
         User user = SayaUtils.getUserByShiro();
         boolean modified = false;
@@ -179,6 +184,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @CacheEvict(cacheNames = RedisCacheKeys.USER_INFO_DOMAIN, key = "T(com.tracejp.saya.utils.SayaUtils).driveId")
     public void updatePassword(String oldPassword, String newPassword) {
         Subject subject = SecurityUtils.getSubject();
         User user = (User) subject.getPrincipal();

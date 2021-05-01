@@ -71,12 +71,13 @@ public class LocalFileHandler implements FileHandler {
         String prefix = FileHandler.normalizeDirectory(basePath.getFileTmp()) +
                 initFile.getFileUploadId() + "-";
 
-        // 按分片数排序
-        results.sort(Comparator.comparing(UploadResult::getChunkNumber));
+        // list去重排序
+        Set<UploadResult> resultsSet = new TreeSet<>(Comparator.comparing(UploadResult::getChunkNumber));
+        resultsSet.addAll(results);
 
         try (OutputStream out = new BufferedOutputStream(new FileOutputStream(filePath))) {
             byte[] buffer = new byte[102400];
-            for (UploadResult result : results) {
+            for (UploadResult result : resultsSet) {
                 String chunkPath = prefix + result.getOtherParam().get(FILENAME_MAP_KEY);
                 try (InputStream in = new BufferedInputStream(new FileInputStream(chunkPath))) {
                     int len;
