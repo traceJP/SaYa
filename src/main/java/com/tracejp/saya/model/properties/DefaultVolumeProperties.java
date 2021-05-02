@@ -16,13 +16,13 @@ import org.springframework.stereotype.Component;
 public class DefaultVolumeProperties {
 
     /**
-     * 云盘总容量
+     * 云盘总容量 -> 默认20G
      */
-    private Long cloudTotal;
+    private Long cloudTotal = 21474836480L;
 
     /**
-     * 云盘下载总容量
+     * 云盘下载总容量 -> 默认5G
      */
-    private Long cdnTotal;
+    private Long cdnTotal = 5368709120L;
 
 }

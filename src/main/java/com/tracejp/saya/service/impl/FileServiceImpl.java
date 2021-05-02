@@ -1,14 +1,20 @@
 package com.tracejp.saya.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.tracejp.saya.exception.FileTransportException;
+import com.tracejp.saya.exception.ServiceException;
 import com.tracejp.saya.handler.file.FileHandlerManager;
 import com.tracejp.saya.mapper.FileMapper;
 import com.tracejp.saya.model.entity.File;
+import com.tracejp.saya.model.entity.Volume;
+import com.tracejp.saya.model.enums.BaseStatusEnum;
 import com.tracejp.saya.model.params.FileParam;
 import com.tracejp.saya.model.params.UploadParam;
 import com.tracejp.saya.service.FileService;
 import com.tracejp.saya.service.FolderService;
+import com.tracejp.saya.service.VolumeService;
 import com.tracejp.saya.utils.SayaUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,6 +41,9 @@ public class FileServiceImpl implements FileService {
     private FolderService folderService;
 
     @Autowired
+    private VolumeService volumeService;
+
+    @Autowired
     private FileHandlerManager fileHandler;
 
 
@@ -44,7 +53,13 @@ public class FileServiceImpl implements FileService {
         // 父文件夹检测处理
         folderService.hasFolder(param.getFolderHash());
 
-        // 做上传检查,如流量计算，内存计算等  2021.4.27
+        // 用户云盘容量检查
+        Volume userVolume = volumeService.getBy(SayaUtils.getDriveId())
+                .orElseThrow(() -> new ServiceException("未找到用户容量记录"));
+        long newCloudVolume = param.getTotalSize() + userVolume.getVolumeCloudUsed();
+        if (newCloudVolume > userVolume.getVolumeCloudTotal()) {
+            throw new FileTransportException("当前云盘容量使用已满");
+        }
 
         // 秒传处理
         File md5file = md5SecondPass(param);
@@ -55,12 +70,12 @@ public class FileServiceImpl implements FileService {
         // 文件上传
         File upload = fileHandler.doUpload(param);
 
+        // 上传成功
         if (Objects.nonNull(upload)) {
-            // 上传成功
-
-            // 流量内存计算 2021.4.27
-
-            fileMapper.insert(upload);
+            SayaUtils.influence(fileMapper.insert(upload));
+            // 新容量计算
+            userVolume.setVolumeCloudUsed(newCloudVolume);
+            volumeService.updateById(userVolume);
         }
 
         return Optional.ofNullable(upload);
@@ -71,10 +86,31 @@ public class FileServiceImpl implements FileService {
         LambdaQueryWrapper<File> wrapper = Wrappers.lambdaQuery();
         wrapper.eq(File::getFileHash, fileHash);
         wrapper.eq(File::getDriveId, SayaUtils.getDriveId());
-        Optional<File> file = Optional.of(fileMapper.selectOne(wrapper));
-        fileHandler.doDownload(file.get());
+        File file = fileMapper.selectOne(wrapper);
 
-        // 下载后计算  2021.4.27
+        if (Objects.isNull(file)) {
+            throw new FileTransportException("未找到文件记录");
+        }
+
+        // 文件状态检查
+        if (StringUtils.equals(file.getFileStatus(), BaseStatusEnum.DEACTIVATE.getValue())) {
+            throw new FileTransportException("当前下载文件被封禁存在异常");
+        }
+
+        // 用户下载容量检查
+        Volume userVolume = volumeService.getBy(SayaUtils.getDriveId())
+                .orElseThrow(() -> new FileTransportException("未找到用户容量记录表"));
+        long newCdnVolume = Long.parseLong(file.getFileSize()) + userVolume.getVolumeCdnUsed();
+        if (newCdnVolume > userVolume.getVolumeCdnTotal()) {
+            throw new FileTransportException("当前下载容量不足");
+        }
+
+        // 文件下载
+        fileHandler.doDownload(file);
+
+        // 新容量计算
+        userVolume.setVolumeCdnUsed(newCdnVolume);
+        volumeService.updateById(userVolume);
 
     }
 

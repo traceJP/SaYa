@@ -1,5 +1,6 @@
 package com.tracejp.saya.service.impl;
 
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.crypto.digest.DigestUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -13,8 +14,12 @@ import com.tracejp.saya.mapper.UserMapper;
 import com.tracejp.saya.model.constant.RedisCacheKeys;
 import com.tracejp.saya.model.dto.UserDto;
 import com.tracejp.saya.model.entity.User;
+import com.tracejp.saya.model.enums.AuthRoleEnum;
+import com.tracejp.saya.model.enums.BaseStatusEnum;
 import com.tracejp.saya.model.params.UserParam;
+import com.tracejp.saya.service.FolderService;
 import com.tracejp.saya.service.UserService;
+import com.tracejp.saya.service.VolumeService;
 import com.tracejp.saya.utils.RegexUtils;
 import com.tracejp.saya.utils.SayaUtils;
 import com.tracejp.saya.utils.ServletUtils;
@@ -27,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
@@ -50,6 +56,12 @@ public class UserServiceImpl implements UserService {
     private UserMapper userMapper;
 
     @Autowired
+    private FolderService folderService;
+
+    @Autowired
+    private VolumeService volumeService;
+
+    @Autowired
     private JwtHandler jwtHandler;
 
     @Autowired
@@ -62,18 +74,26 @@ public class UserServiceImpl implements UserService {
     private AvatarHandler avatarHandler;
 
     @Override
+    @Transactional
     public User register(String phone) {
 
-        // 初始化
-        // 初始化cld_folder表，为用户自动新建一个root文件夹
+        // 初始化sys_user表
+        User user = new User();
+        user.setDriveId(IdUtil.fastUUID());
+        user.setUserType(AuthRoleEnum.REGISTER.getValue());
+        user.setPhone(phone);
+        user.setStatus(BaseStatusEnum.NORMAL.getValue());
+        user.setLoginIp(ServletUtils.getRequestIp());
+        user.setLoginDate(LocalDateTime.now());
+        userMapper.insert(user);
 
-        // 初始化sys_user表，添加一个用户
+        // 初始化folder
+        folderService.createRoot(user.getDriveId());
 
-        // 初始化sys_volume表，为用户设置云盘容量等
+        // 初始化volume
+        volumeService.createByDefault(user.getDriveId());
 
-        // 初始化sys_weight表，为用户设置权重等
-
-        return null;
+        return user;
     }
 
     @Override

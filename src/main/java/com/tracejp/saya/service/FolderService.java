@@ -32,7 +32,7 @@ public interface FolderService {
      * 创建一个文件夹（根目录）
      * @return 成功则创建的文件夹实体
      */
-    Folder createRoot();
+    Folder createRoot(String driveId);
 
     /**
      * 修改文件夹基本信息

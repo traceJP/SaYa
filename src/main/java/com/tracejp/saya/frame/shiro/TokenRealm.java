@@ -5,6 +5,7 @@ import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.tracejp.saya.handler.token.JwtHandler;
 import com.tracejp.saya.model.entity.User;
 import com.tracejp.saya.model.enums.BaseStatusEnum;
+import com.tracejp.saya.model.enums.AuthRoleEnum;
 import com.tracejp.saya.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -71,8 +72,8 @@ public class TokenRealm extends AuthorizingRealm {
         User user = (User) principals.getPrimaryPrincipal();
         String userType = user.getUserType();
         // 系统用户角色授权
-        if (StringUtils.equals(userType, "00")) {
-            info.addRole("admin");
+        if (StringUtils.equals(userType, AuthRoleEnum.SYSTEM.getValue())) {
+            info.addRole(AuthRoleEnum.SYSTEM.getRole());
         }
         return info;
     }
