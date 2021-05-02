@@ -40,10 +40,10 @@ public class Code extends SuperEntity {
     private Integer codeAccessUsed;
 
     @ApiModelProperty(value = "增加云盘空间字节数")
-    private String incrCloud;
+    private Long incrCloud;
 
     @ApiModelProperty(value = "增加下载用量字节数")
-    private String incrCdn;
+    private Long incrCdn;
 
 
 }

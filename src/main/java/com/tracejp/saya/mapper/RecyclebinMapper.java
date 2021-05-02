@@ -2,6 +2,7 @@ package com.tracejp.saya.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.tracejp.saya.model.entity.Recyclebin;
+import org.springframework.stereotype.Repository;
 
 /**
  * <p>
@@ -11,6 +12,7 @@ import com.tracejp.saya.model.entity.Recyclebin;
  * @author TraceJP
  * @since 2021-04-06
  */
+@Repository
 public interface RecyclebinMapper extends BaseMapper<Recyclebin> {
 
 }

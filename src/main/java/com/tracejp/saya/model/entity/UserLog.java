@@ -1,6 +1,8 @@
 package com.tracejp.saya.model.entity;
 
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.tracejp.saya.model.entity.base.SuperEntity;
 import io.swagger.annotations.ApiModel;
@@ -10,7 +12,7 @@ import lombok.EqualsAndHashCode;
 
 /**
  * <p>
- * 
+ * 用户日志记录实体
  * </p>
  *
  * @author TraceJP
@@ -19,9 +21,12 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("sys_user_log")
-@ApiModel(value="UserLog对象", description="")
+@ApiModel(value="UserLog对象", description="记录用户行为")
 public class UserLog extends SuperEntity {
 
+    @ApiModelProperty(value = "删除标志（0存在 1删除）")
+    @TableField(fill = FieldFill.INSERT)
+    private String delFlag;
 
     @ApiModelProperty(value = "所属用户id（外键）")
     private String driveId;
@@ -40,6 +45,5 @@ public class UserLog extends SuperEntity {
 
     @ApiModelProperty(value = "删除文件夹哈希")
     private String deleteFolderHash;
-
 
 }
