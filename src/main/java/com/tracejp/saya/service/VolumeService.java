@@ -1,5 +1,6 @@
 package com.tracejp.saya.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.tracejp.saya.model.entity.Volume;
 
 import java.util.Optional;
@@ -44,5 +45,13 @@ public interface VolumeService {
      * @return Volume
      */
     Optional<Volume> getBy(String driveId);
+
+    /**
+     * 分页查询记录
+     * @param current 当前页
+     * @param size 每页个数
+     * @return IPage
+     */
+    IPage<Volume> listOfPage(long current, long size);
 
 }

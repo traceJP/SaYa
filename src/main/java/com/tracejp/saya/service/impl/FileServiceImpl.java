@@ -18,6 +18,8 @@ import com.tracejp.saya.service.VolumeService;
 import com.tracejp.saya.utils.SayaUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
@@ -143,6 +145,14 @@ public class FileServiceImpl implements FileService {
         wrapper.eq(File::getDriveId, SayaUtils.getDriveId());
         fileMapper.update(file.convertTo(), wrapper);
         return fileMapper.selectOne(wrapper);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.SUPPORTS)
+    public void deleteBy(String fileHash) {
+        LambdaQueryWrapper<File> wrapper = Wrappers.lambdaQuery();
+        wrapper.eq(File::getFileHash, fileHash);
+        fileMapper.delete(wrapper);
     }
 
     @Override

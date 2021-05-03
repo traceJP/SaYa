@@ -46,6 +46,12 @@ public interface FileService {
     File update(FileParam file);
 
     /**
+     * 删除文件
+     * @param fileHash 文件哈希
+     */
+    void deleteBy(String fileHash);
+
+    /**
      * 通过id获取文件信息
      * @param id 自增id
      * @return File

@@ -1,7 +1,9 @@
 package com.tracejp.saya.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.tracejp.saya.mapper.VolumeMapper;
 import com.tracejp.saya.model.entity.Volume;
 import com.tracejp.saya.model.properties.DefaultVolumeProperties;
@@ -9,6 +11,8 @@ import com.tracejp.saya.service.VolumeService;
 import com.tracejp.saya.utils.SayaUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -35,6 +39,7 @@ public class VolumeServiceImpl implements VolumeService {
     }
 
     @Override
+    @Transactional(propagation = Propagation.SUPPORTS)
     public void createByDefault(String driveId) {
         Volume volume = new Volume();
         volume.setDriveId(driveId);
@@ -62,6 +67,11 @@ public class VolumeServiceImpl implements VolumeService {
         LambdaQueryWrapper<Volume> wrapper = Wrappers.lambdaQuery();
         wrapper.eq(Volume::getDriveId, driveId);
         return Optional.ofNullable(volumeMapper.selectOne(wrapper));
+    }
+
+    @Override
+    public IPage<Volume> listOfPage(long current, long size) {
+        return volumeMapper.selectPage(new Page<>(current, size), null);
     }
 
 }

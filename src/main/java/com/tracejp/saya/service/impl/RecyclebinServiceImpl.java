@@ -44,12 +44,12 @@ public class RecyclebinServiceImpl implements RecyclebinService {
     }
 
     @Override
-    public void deleteBy(String driveId, String hashId) {
-        if (StringUtils.isAnyBlank(driveId, hashId)) {
+    public void deleteBy(String hashType, String hashId) {
+        if (StringUtils.isAnyBlank(hashType, hashId)) {
             throw new MissingPropertyException("删除用户记录时存在属性为空");
         }
         LambdaQueryWrapper<Recyclebin> wrapper = Wrappers.lambdaQuery();
-        wrapper.eq(Recyclebin::getDriveId, driveId);
+        wrapper.eq(Recyclebin::getHashType, hashType);
         wrapper.eq(Recyclebin::getHashId, hashId);
         SayaUtils.influence(recyclebinMapper.delete(wrapper));
     }

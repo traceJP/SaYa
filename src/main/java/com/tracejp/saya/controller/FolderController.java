@@ -32,20 +32,6 @@ public class FolderController {
     @Autowired
     private FolderService folderService;
 
-    @ApiOperation("获取文件夹中的所有内容")
-    @ApiImplicitParam(name = "folderHash", value = "文件夹哈希")
-    @GetMapping("/list")
-    public List<Object> quireAll(String folderHash) {
-        return folderService.getAll(folderHash);
-    }
-
-    @ApiOperation("获取文件夹基本信息")
-    @ApiImplicitParam(name = "folderHash", value = "文件夹哈希")
-    @GetMapping("/get")
-    public Folder quireFolderInfo(String folderHash) {
-        return folderService.getByHash(folderHash).orElseThrow(
-                () -> new NotFoundException("文件信息不存在"));
-    }
 
     @ApiOperation("创建文件夹")
     @ApiImplicitParam(name = "folder", value = "文件夹名/父文件哈希/是否加星")
@@ -62,6 +48,28 @@ public class FolderController {
     @PutMapping("/update")
     public BaseResponse<Folder> updateFolder(@RequestBody FolderParam folder, String folderHash) {
         return BaseResponse.ok(folderService.updateFolder(folder, folderHash));
+    }
+
+    @ApiOperation("删除文件夹以及文件夹内的所有文件")
+    @ApiImplicitParam(name = "folderHash", value = "文件夹哈希")
+    public BaseResponse<?> delete(String folderHash) {
+        folderService.deleteBy(folderHash);
+        return BaseResponse.ok("文件夹已被永久移除");
+    }
+
+    @ApiOperation("获取文件夹中的所有内容")
+    @ApiImplicitParam(name = "folderHash", value = "文件夹哈希")
+    @GetMapping("/list")
+    public List<Object> quireAll(String folderHash) {
+        return folderService.getAll(folderHash);
+    }
+
+    @ApiOperation("获取文件夹基本信息")
+    @ApiImplicitParam(name = "folderHash", value = "文件夹哈希")
+    @GetMapping("/get")
+    public Folder quireFolderInfo(String folderHash) {
+        return folderService.getByHash(folderHash).orElseThrow(
+                () -> new NotFoundException("文件信息不存在"));
     }
 
 }

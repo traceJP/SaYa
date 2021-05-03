@@ -60,6 +60,14 @@ public class FileController {
         return BaseResponse.ok("文件信息修改成功", fileService.update(param));
     }
 
+    @ApiOperation("用户文件删除")
+    @ApiImplicitParam(name = "fileHash", value = "目标删除文件哈希")
+    @DeleteMapping("/delete")
+    public BaseResponse<?> delete(String fileHash) {
+        fileService.deleteBy(fileHash);
+        return BaseResponse.ok("文件已被永久移除");
+    }
+
     @ApiOperation("根据文件id获取文件信息")
     @ApiImplicitParam(name = "id", value = "文件自增id")
     @GetMapping("/get/{id}")

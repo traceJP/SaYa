@@ -23,10 +23,10 @@ public interface RecyclebinService {
 
     /**
      * 删除
-     * @param driveId 用户uuid
+     * @param hashType 文件类型
      * @param hashId 文件哈希
      */
-    void deleteBy(String driveId, String hashId);
+    void deleteBy(String hashType, String hashId);
 
     /**
      * 通过用户id删除所有

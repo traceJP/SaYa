@@ -7,17 +7,23 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.tracejp.saya.exception.NotFoundException;
 import com.tracejp.saya.exception.ServiceException;
 import com.tracejp.saya.mapper.FolderMapper;
+import com.tracejp.saya.model.entity.File;
 import com.tracejp.saya.model.entity.Folder;
+import com.tracejp.saya.model.entity.Recyclebin;
 import com.tracejp.saya.model.enums.BaseStatusEnum;
 import com.tracejp.saya.model.enums.YesNoStrEnum;
 import com.tracejp.saya.model.params.FolderParam;
 import com.tracejp.saya.service.FileService;
 import com.tracejp.saya.service.FolderService;
+import com.tracejp.saya.service.RecyclebinService;
 import com.tracejp.saya.utils.SayaUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +45,11 @@ public class FolderServiceImpl implements FolderService {
     private FolderMapper folderMapper;
 
     @Autowired
+    @Lazy
     private FileService fileService;
+
+    @Autowired
+    private RecyclebinService recyclebinService;
 
 
     @Override
@@ -64,6 +74,7 @@ public class FolderServiceImpl implements FolderService {
     }
 
     @Override
+    @Transactional(propagation = Propagation.SUPPORTS)
     public Folder createRoot(String driveId) {
         Folder entity = new Folder();
         entity.setDriveId(SayaUtils.getDriveId());
@@ -87,6 +98,18 @@ public class FolderServiceImpl implements FolderService {
     }
 
     @Override
+    @Transactional
+    public void deleteBy(String folderHash) {
+        List<File> files = fileService.listByFolder(folderHash);
+        // 删除所有文件夹内文件
+        files.forEach((v) -> fileService.deleteBy(v.getFileHash()));
+        // 删除文件夹
+        LambdaUpdateWrapper<Folder> wrapper = Wrappers.lambdaUpdate();
+        wrapper.eq(Folder::getFolderHash, folderHash);
+        folderMapper.delete(wrapper);
+    }
+
+    @Override
     public Optional<Folder> getByHash(String folderHash) {
         LambdaUpdateWrapper<Folder> wrapper = Wrappers.lambdaUpdate();
         wrapper.eq(Folder::getFolderHash, folderHash);
@@ -96,8 +119,29 @@ public class FolderServiceImpl implements FolderService {
     @Override
     public List<Object> getAll(String folderHash) {
         List<Object> res = new ArrayList<>();
-        res.addAll(fileService.listByFolder(folderHash));
-        res.addAll(getList(folderHash));
+        List<File> files = fileService.listByFolder(folderHash);
+        List<Folder> folders = getList(folderHash);
+        // 排除回收站内容
+        List<Recyclebin> trashes = recyclebinService.listByDrive(SayaUtils.getDriveId());
+        for (Recyclebin trash : trashes) {
+            if (StringUtils.equals(trash.getHashType(), "1")) {
+                // 文件排除
+                files.forEach((v) -> {
+                    if (StringUtils.equals(v.getFileHash(), trash.getHashId())) {
+                        files.remove(v);
+                    }
+                });
+            } else if (StringUtils.equals(trash.getHashType(), "2")) {
+                // 文件夹排除
+                folders.forEach((v) -> {
+                    if (StringUtils.equals(v.getFolderHash(), trash.getHashId())) {
+                        folders.remove(v);
+                    }
+                });
+            }
+        }
+        res.addAll(files);
+        res.addAll(folders);
         return res;
     }
 

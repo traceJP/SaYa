@@ -43,6 +43,12 @@ public interface FolderService {
     Folder updateFolder(FolderParam folderInfo, String folderHash);
 
     /**
+     * 删除文件夹
+     * @param folderHash 文件夹哈希
+     */
+    void deleteBy(String folderHash);
+
+    /**
      * 通过文件夹哈希查找文件夹实体
      * @param folderHash 文件夹哈希
      * @return 文件夹实体
