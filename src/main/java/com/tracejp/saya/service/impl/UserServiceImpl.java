@@ -80,7 +80,7 @@ public class UserServiceImpl implements UserService {
         // 初始化sys_user表
         User user = new User();
         user.setDriveId(IdUtil.fastUUID());
-        user.setUserType(AuthRoleEnum.REGISTER.getValue());
+        user.setType(AuthRoleEnum.REGISTER.getValue());
         user.setPhone(phone);
         user.setStatus(BaseStatusEnum.NORMAL.getValue());
         user.setLoginIp(ServletUtils.getRequestIp());
@@ -153,7 +153,7 @@ public class UserServiceImpl implements UserService {
                 if (RegexUtils.isLengOut(userParam.getUserName(), 20)) {
                     throw new ServiceException("用户名过长");
                 }
-                user.setUserName(userParam.getUserName());
+                user.setName(userParam.getUserName());
                 modified = true;
             }
 

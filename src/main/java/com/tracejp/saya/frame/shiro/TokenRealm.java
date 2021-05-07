@@ -70,7 +70,7 @@ public class TokenRealm extends AuthorizingRealm {
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
         SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
         User user = (User) principals.getPrimaryPrincipal();
-        String userType = user.getUserType();
+        String userType = user.getType();
         // 系统用户角色授权
         if (StringUtils.equals(userType, AuthRoleEnum.SYSTEM.getValue())) {
             info.addRole(AuthRoleEnum.SYSTEM.getRole());

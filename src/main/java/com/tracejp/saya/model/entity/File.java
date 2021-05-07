@@ -36,28 +36,28 @@ public class File extends SuperEntity {
     private String folderHash;
 
     @ApiModelProperty(value = "文件上传id")
-    private String fileUploadId;
+    private String uploadId;
 
     @ApiModelProperty(value = "文件名")
-    private String fileName;
+    private String name;
 
     @ApiModelProperty(value = "文件MD5")
-    private String fileMd5;
+    private String md5;
 
     @ApiModelProperty(value = "文件哈希")
-    private String fileHash;
+    private String hash;
 
     @ApiModelProperty(value = "文件大小（字节）")
-    private String fileSize;
+    private String size;
 
     @ApiModelProperty(value = "文件扩展名")
-    private String fileExtension;
+    private String extension;
 
     @ApiModelProperty(value = "文件存储类型（1本地 2oss）")
-    private String fileSaveType;
+    private String saveType;
 
     @ApiModelProperty(value = "文件状态（0正常 1停用）")
-    private String fileStatus;
+    private String status;
 
     @ApiModelProperty(value = "加星标志（0未加 1已加）")
     private String starredFlag;

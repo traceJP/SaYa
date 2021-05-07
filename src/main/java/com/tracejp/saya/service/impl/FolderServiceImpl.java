@@ -64,10 +64,10 @@ public class FolderServiceImpl implements FolderService {
         // 构建entity新增记录
         Folder entity = folder.convertTo();
         entity.setDriveId(SayaUtils.getDriveId());
-        entity.setFolderRoot(YesNoStrEnum.NO.getValue());
+        entity.setIsRoot(YesNoStrEnum.NO.getValue());
         entity.setStarredFlag(YesNoStrEnum.NO.getValue());
-        entity.setFolderStatus(BaseStatusEnum.NORMAL.getValue());
-        entity.setFolderHash(IdUtil.fastSimpleUUID());
+        entity.setStatus(BaseStatusEnum.NORMAL.getValue());
+        entity.setHash(IdUtil.fastSimpleUUID());
         SayaUtils.influence(folderMapper.insert(entity));
 
         return entity;
@@ -78,8 +78,8 @@ public class FolderServiceImpl implements FolderService {
     public Folder createRoot(String driveId) {
         Folder entity = new Folder();
         entity.setDriveId(SayaUtils.getDriveId());
-        entity.setFolderRoot(YesNoStrEnum.YES.getValue());
-        entity.setFolderHash(ROOT_FOLDER_HASH);
+        entity.setIsRoot(YesNoStrEnum.YES.getValue());
+        entity.setHash(ROOT_FOLDER_HASH);
         SayaUtils.influence(folderMapper.insert(entity));
         return entity;
     }
@@ -91,7 +91,7 @@ public class FolderServiceImpl implements FolderService {
             throw new ServiceException("传入参数错误");
         }
         LambdaUpdateWrapper<Folder> wrapper = Wrappers.lambdaUpdate();
-        wrapper.eq(Folder::getFolderHash, folderHash);
+        wrapper.eq(Folder::getHash, folderHash);
         wrapper.eq(Folder::getDriveId, SayaUtils.getDriveId());
         SayaUtils.influence(folderMapper.update(folderInfo.convertTo(), wrapper));
         return getByHash(folderHash).orElseThrow(() -> new NotFoundException("文件夹基本信息未找到"));
@@ -102,17 +102,17 @@ public class FolderServiceImpl implements FolderService {
     public void deleteBy(String folderHash) {
         List<File> files = fileService.listByFolder(folderHash);
         // 删除所有文件夹内文件
-        files.forEach((v) -> fileService.deleteBy(v.getFileHash()));
+        files.forEach((v) -> fileService.deleteBy(v.getHash()));
         // 删除文件夹
         LambdaUpdateWrapper<Folder> wrapper = Wrappers.lambdaUpdate();
-        wrapper.eq(Folder::getFolderHash, folderHash);
+        wrapper.eq(Folder::getHash, folderHash);
         folderMapper.delete(wrapper);
     }
 
     @Override
     public Optional<Folder> getByHash(String folderHash) {
         LambdaUpdateWrapper<Folder> wrapper = Wrappers.lambdaUpdate();
-        wrapper.eq(Folder::getFolderHash, folderHash);
+        wrapper.eq(Folder::getHash, folderHash);
         return Optional.of(folderMapper.selectOne(wrapper));
     }
 
@@ -127,14 +127,14 @@ public class FolderServiceImpl implements FolderService {
             if (StringUtils.equals(trash.getHashType(), "1")) {
                 // 文件排除
                 files.forEach((v) -> {
-                    if (StringUtils.equals(v.getFileHash(), trash.getHashId())) {
+                    if (StringUtils.equals(v.getHash(), trash.getHashId())) {
                         files.remove(v);
                     }
                 });
             } else if (StringUtils.equals(trash.getHashType(), "2")) {
                 // 文件夹排除
                 folders.forEach((v) -> {
-                    if (StringUtils.equals(v.getFolderHash(), trash.getHashId())) {
+                    if (StringUtils.equals(v.getHash(), trash.getHashId())) {
                         folders.remove(v);
                     }
                 });
@@ -148,14 +148,14 @@ public class FolderServiceImpl implements FolderService {
     @Override
     public List<Folder> getList(String folderHash) {
         LambdaUpdateWrapper<Folder> wrapper = Wrappers.lambdaUpdate();
-        wrapper.eq(Folder::getFolderHash, folderHash);
+        wrapper.eq(Folder::getHash, folderHash);
         return folderMapper.selectList(wrapper);
     }
 
     @Override
     public void hasFolder(String folderHash) {
         LambdaQueryWrapper<Folder> wrapper = Wrappers.lambdaQuery();
-        wrapper.eq(Folder::getFolderHash, folderHash);
+        wrapper.eq(Folder::getHash, folderHash);
         if (folderMapper.selectCount(wrapper) == 0) {
             log.warn("父文件节点不存在");
             throw new ServiceException("传入参数父文件夹不存在");

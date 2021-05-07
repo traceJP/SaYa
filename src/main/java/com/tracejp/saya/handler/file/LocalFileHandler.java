@@ -65,11 +65,11 @@ public class LocalFileHandler implements FileHandler {
 
         // 文件保存路径
         String filePath = FileHandler.normalizeDirectory(basePath.getFileSave()) +
-                initFile.getFileHash() + initFile.getFileExtension();
+                initFile.getHash() + initFile.getExtension();
 
         // 临时文件保存路径前缀
         String prefix = FileHandler.normalizeDirectory(basePath.getFileTmp()) +
-                initFile.getFileUploadId() + "-";
+                initFile.getUploadId() + "-";
 
         // list去重排序
         Set<UploadResult> resultsSet = new TreeSet<>(Comparator.comparing(UploadResult::getChunkNumber));
@@ -106,7 +106,7 @@ public class LocalFileHandler implements FileHandler {
         if (Objects.nonNull(listAll)) {
             // 遍历本地临时文件夹
             for (String filename : listAll) {
-                if (StringUtils.equals(filename.split("-")[0], initFile.getFileUploadId())) {
+                if (StringUtils.equals(filename.split("-")[0], initFile.getUploadId())) {
                    File file = new File(folderPath + filename);
                    if (!file.delete()) {
                        log.warn("临时文件删除失败");

@@ -23,10 +23,10 @@ public class Menu extends SuperEntity {
 
 
     @ApiModelProperty(value = "首级菜单项名")
-    private String menuName;
+    private String name;
 
     @ApiModelProperty(value = "菜单类型（m目录 f按钮）")
-    private String menuType;
+    private String type;
 
     @ApiModelProperty(value = "权限标识")
     private String perms;

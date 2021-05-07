@@ -43,10 +43,10 @@ public class VolumeServiceImpl implements VolumeService {
     public void createByDefault(String driveId) {
         Volume volume = new Volume();
         volume.setDriveId(driveId);
-        volume.setVolumeCloudTotal(defaultVolumeProperties.getCloudTotal());
-        volume.setVolumeCdnTotal(defaultVolumeProperties.getCdnTotal());
-        volume.setVolumeCloudUsed(0L);
-        volume.setVolumeCdnUsed(0L);
+        volume.setCloudTotal(defaultVolumeProperties.getCloudTotal());
+        volume.setCdnTotal(defaultVolumeProperties.getCdnTotal());
+        volume.setCloudUsed(0L);
+        volume.setCdnUsed(0L);
         createBy(volume);
     }
 

@@ -33,23 +33,19 @@ public class Folder extends SuperEntity {
     private String driveId;
 
     @ApiModelProperty(value = "是否为根文件夹（0否 1是）")
-    private String folderRoot;
-
-    // 字段已删除
-//    @ApiModelProperty(value = "文件夹新建id")
-//    private Integer folderCreateId;
+    private String isRoot;
 
     @ApiModelProperty(value = "文件夹名")
-    private String folderName;
+    private String name;
 
     @ApiModelProperty(value = "文件夹哈希")
-    private String folderHash;
+    private String hash;
 
     @ApiModelProperty(value = "文件夹父节点哈希")
-    private String folderParentHash;
+    private String parentHash;
 
     @ApiModelProperty(value = "文件夹状态（0正常 1停用）")
-    private String folderStatus;
+    private String status;
 
     @ApiModelProperty(value = "加星标志（0未加 1已加）")
     private String starredFlag;

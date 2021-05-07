@@ -11,7 +11,7 @@
  Target Server Version : 80019
  File Encoding         : 65001
 
- Date: 02/05/2021 12:24:08
+ Date: 07/05/2021 18:52:19
 */
 
 SET NAMES utf8mb4;
@@ -28,14 +28,14 @@ CREATE TABLE `cld_file`  (
   `del_flag` char(1) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '删除标志（0存在 1删除）',
   `drive_id` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '用户id（外键）',
   `folder_hash` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '文件所在文件夹哈希（外键）',
-  `file_upload_id` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '文件上传id',
-  `file_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '文件名',
-  `file_md5` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '文件md5',
-  `file_hash` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '文件哈希',
-  `file_size` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '文件大小（字节）',
-  `file_extension` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '文件扩展名',
-  `file_save_type` char(1) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '文件存储类型（1本地 2oss）',
-  `file_status` char(1) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '文件状态（0正常 1停用）',
+  `upload_id` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '文件上传id',
+  `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '文件名',
+  `md5` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '文件md5',
+  `hash` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '文件哈希',
+  `size` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '文件大小（字节）',
+  `extension` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '文件扩展名',
+  `save_type` char(1) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '文件存储类型（1本地 2oss）',
+  `status` char(1) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '文件状态（0正常 1停用）',
   `starred_flag` char(1) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '加星标志（0未加 1已加）',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 57 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
@@ -50,14 +50,14 @@ CREATE TABLE `cld_folder`  (
   `gmt_modified` datetime(0) NOT NULL COMMENT '记录修改时间',
   `del_flag` char(1) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '删除标志（0存在 1删除）',
   `drive_id` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '文件所属用户id（外键）',
-  `folder_root` char(1) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '是否为根文件夹（0否 1是）',
-  `folder_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '文件夹名',
-  `folder_hash` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '文件夹哈希',
-  `folder_parent_hash` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '文件夹父节点哈希',
-  `folder_status` char(1) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '文件夹状态（0正常 1停用）',
+  `is_root` char(1) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '是否为根文件夹（0否 1是）',
+  `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '文件夹名',
+  `hash` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '文件夹哈希',
+  `parent_hash` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '文件夹父节点哈希',
+  `status` char(1) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '文件夹状态（0正常 1停用）',
   `starred_flag` char(1) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '加星标志（0未加 1已加）',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for cld_recyclebin
@@ -71,7 +71,7 @@ CREATE TABLE `cld_recyclebin`  (
   `hash_id` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '文件或文件夹哈希（外键）',
   `hash_type` char(1) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '类型（1文件 2文件夹）',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '回收站' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '回收站' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for cld_share
@@ -85,13 +85,13 @@ CREATE TABLE `cld_share`  (
   `drive_id` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '文件所有者id（外键）',
   `hash_id` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '文件或文件夹哈希（外键）',
   `hash_type` char(1) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '链接文件类型（1文件 2文件夹）',
-  `share_url` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '生成的共享链接',
-  `share_password` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '共享密码',
-  `share_expiry` datetime(0) NULL DEFAULT NULL COMMENT '链接过期时间',
-  `share_access_total` int(0) NULL DEFAULT NULL COMMENT '链接总访问次数',
-  `share_access_used` int(0) NULL DEFAULT NULL COMMENT '链接已访问次数',
+  `url` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '生成的共享链接',
+  `password` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '共享密码',
+  `expiry` datetime(0) NULL DEFAULT NULL COMMENT '链接过期时间',
+  `access_total` int(0) NULL DEFAULT NULL COMMENT '链接总访问次数',
+  `access_used` int(0) NULL DEFAULT NULL COMMENT '链接已访问次数',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for sys_code
@@ -102,14 +102,14 @@ CREATE TABLE `sys_code`  (
   `gmt_create` datetime(0) NOT NULL COMMENT '记录创建时间',
   `gmt_modified` datetime(0) NOT NULL COMMENT '记录修改时间',
   `del_flag` char(1) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '删除标志（0存在 1删除）',
-  `code_content` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '激活码',
-  `code_expiry` datetime(0) NULL DEFAULT NULL COMMENT '过期时间',
-  `code_access_total` int(0) NULL DEFAULT NULL COMMENT '激活码使用总次数',
-  `code_access_used` int(0) NULL DEFAULT NULL COMMENT '激活码已使用次数',
+  `key` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '激活码',
+  `expiry` datetime(0) NULL DEFAULT NULL COMMENT '过期时间',
+  `access_total` int(0) NULL DEFAULT NULL COMMENT '激活码使用总次数',
+  `access_used` int(0) NULL DEFAULT NULL COMMENT '激活码已使用次数',
   `incr_cloud` bigint(0) NULL DEFAULT NULL COMMENT '增加云盘空间字节数',
   `incr_cdn` bigint(0) NULL DEFAULT NULL COMMENT '增加下载用量字节数',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for sys_menu
@@ -119,8 +119,8 @@ CREATE TABLE `sys_menu`  (
   `id` bigint(0) UNSIGNED NOT NULL COMMENT '菜单id',
   `gmt_create` datetime(0) NOT NULL COMMENT '记录创建时间',
   `gmt_modified` datetime(0) NOT NULL COMMENT '记录修改时间',
-  `menu_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '首级菜单项名',
-  `menu_type` char(1) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '菜单类型（m目录 f按钮）',
+  `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '首级菜单项名',
+  `type` char(1) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '菜单类型（m目录 f按钮）',
   `perms` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '权限标识',
   `url` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '请求地址',
   `icon` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '菜单图标',
@@ -140,8 +140,8 @@ CREATE TABLE `sys_user`  (
   `gmt_modified` datetime(0) NOT NULL COMMENT '记录修改时间',
   `del_flag` char(1) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '删除标志（0存在 1删除）',
   `drive_id` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '用户uuid',
-  `user_type` char(2) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '用户类型（00系统用户 01注册用户）',
-  `user_name` varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '用户昵称',
+  `type` char(2) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '用户类型（00系统用户 01注册用户）',
+  `name` varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '用户昵称',
   `email` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '用户邮箱',
   `phone` varchar(11) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '用户手机号码（唯一）',
   `sex` char(1) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '用户性别（0男 1女 2未知）',
@@ -169,7 +169,7 @@ CREATE TABLE `sys_user_log`  (
   `create_folder_hash` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '创建文件夹哈希',
   `delete_folder_hash` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '删除文件夹哈希',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for sys_volume
@@ -181,30 +181,12 @@ CREATE TABLE `sys_volume`  (
   `gmt_modified` datetime(0) NOT NULL COMMENT '记录修改时间',
   `del_flag` char(1) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '删除标志（0存在 1删除）',
   `drive_id` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '所属用户id（外键）',
-  `volume_cloud_total` bigint(0) NULL DEFAULT NULL COMMENT '云盘总容量',
-  `volume_cloud_used` bigint(0) NULL DEFAULT NULL COMMENT '云盘已使用的容量',
-  `volume_cdn_total` bigint(0) NULL DEFAULT NULL COMMENT '云盘下载总量（字节）',
-  `volume_cdn_used` bigint(0) NULL DEFAULT NULL COMMENT '云盘已下载总量（字节）',
+  `cloud_total` bigint(0) NULL DEFAULT NULL COMMENT '云盘总容量',
+  `cloud_used` bigint(0) NULL DEFAULT NULL COMMENT '云盘已使用的容量',
+  `cdn_total` bigint(0) NULL DEFAULT NULL COMMENT '云盘下载总量（字节）',
+  `cdn_used` bigint(0) NULL DEFAULT NULL COMMENT '云盘已下载总量（字节）',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Table structure for sys_weight
--- ----------------------------
-DROP TABLE IF EXISTS `sys_weight`;
-CREATE TABLE `sys_weight`  (
-  `id` bigint(0) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '自增id',
-  `gmt_create` datetime(0) NOT NULL COMMENT '记录创建时间',
-  `gmt_modified` datetime(0) NOT NULL COMMENT '记录修改时间',
-  `del_flag` char(1) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '删除标志（0存在 1删除）',
-  `drive_id` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '所属用户id（外键）',
-  `weight_download` decimal(10, 0) NULL DEFAULT NULL COMMENT '用户下载权重',
-  `download_total` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '用户下载的字节总数',
-  `upload_total` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '用户上传的字节总数',
-  `login_total` int(0) NULL DEFAULT NULL COMMENT '用户登录总天数',
-  `login_continuou` int(0) NULL DEFAULT NULL COMMENT '用户连续登录天数',
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_template

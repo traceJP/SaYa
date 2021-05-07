@@ -38,19 +38,19 @@ public class Share extends SuperEntity {
     private String hashType;
 
     @ApiModelProperty(value = "生成的共享链接")
-    private String shareUrl;
+    private String url;
 
     @ApiModelProperty(value = "共享密码")
-    private String sharePassword;
+    private String password;
 
     @ApiModelProperty(value = "链接过期时间")
-    private LocalDateTime shareExpiry;
+    private LocalDateTime expiry;
 
     @ApiModelProperty(value = "链接总访问次数")
-    private Integer shareAccessTotal;
+    private Integer accessTotal;
 
     @ApiModelProperty(value = "链接已访问次数")
-    private Integer shareAccessUsed;
+    private Integer accessUsed;
 
 
 }

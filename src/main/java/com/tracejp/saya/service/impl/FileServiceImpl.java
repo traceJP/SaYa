@@ -58,8 +58,8 @@ public class FileServiceImpl implements FileService {
         // 用户云盘容量检查
         Volume userVolume = volumeService.getBy(SayaUtils.getDriveId())
                 .orElseThrow(() -> new ServiceException("未找到用户容量记录"));
-        long newCloudVolume = param.getTotalSize() + userVolume.getVolumeCloudUsed();
-        if (newCloudVolume > userVolume.getVolumeCloudTotal()) {
+        long newCloudVolume = param.getTotalSize() + userVolume.getCloudUsed();
+        if (newCloudVolume > userVolume.getCloudTotal()) {
             throw new FileTransportException("当前云盘容量使用已满");
         }
 
@@ -76,7 +76,7 @@ public class FileServiceImpl implements FileService {
         if (Objects.nonNull(upload)) {
             SayaUtils.influence(fileMapper.insert(upload));
             // 新容量计算
-            userVolume.setVolumeCloudUsed(newCloudVolume);
+            userVolume.setCloudUsed(newCloudVolume);
             volumeService.updateById(userVolume);
         }
 
@@ -86,7 +86,7 @@ public class FileServiceImpl implements FileService {
     @Override
     public void download(String fileHash) {
         LambdaQueryWrapper<File> wrapper = Wrappers.lambdaQuery();
-        wrapper.eq(File::getFileHash, fileHash);
+        wrapper.eq(File::getHash, fileHash);
         wrapper.eq(File::getDriveId, SayaUtils.getDriveId());
         File file = fileMapper.selectOne(wrapper);
 
@@ -95,15 +95,15 @@ public class FileServiceImpl implements FileService {
         }
 
         // 文件状态检查
-        if (StringUtils.equals(file.getFileStatus(), BaseStatusEnum.DEACTIVATE.getValue())) {
+        if (StringUtils.equals(file.getStatus(), BaseStatusEnum.DEACTIVATE.getValue())) {
             throw new FileTransportException("当前下载文件被封禁存在异常");
         }
 
         // 用户下载容量检查
         Volume userVolume = volumeService.getBy(SayaUtils.getDriveId())
                 .orElseThrow(() -> new FileTransportException("未找到用户容量记录表"));
-        long newCdnVolume = Long.parseLong(file.getFileSize()) + userVolume.getVolumeCdnUsed();
-        if (newCdnVolume > userVolume.getVolumeCdnTotal()) {
+        long newCdnVolume = Long.parseLong(file.getSize()) + userVolume.getCdnUsed();
+        if (newCdnVolume > userVolume.getCdnTotal()) {
             throw new FileTransportException("当前下载容量不足");
         }
 
@@ -111,7 +111,7 @@ public class FileServiceImpl implements FileService {
         fileHandler.doDownload(file);
 
         // 新容量计算
-        userVolume.setVolumeCdnUsed(newCdnVolume);
+        userVolume.setCdnUsed(newCdnVolume);
         volumeService.updateById(userVolume);
 
     }
@@ -120,7 +120,7 @@ public class FileServiceImpl implements FileService {
     public File md5SecondPass(UploadParam param) {
         if (!param.getEnableChunk() || param.getChunkNumber() == 1) {
             LambdaQueryWrapper<File> wrapper = Wrappers.lambdaQuery();
-            wrapper.eq(File::getFileMd5, param.getFileMd5());
+            wrapper.eq(File::getMd5, param.getFileMd5());
             File file = fileMapper.selectOne(wrapper);
 
             // 存在相同md5值
@@ -130,7 +130,7 @@ public class FileServiceImpl implements FileService {
                 File upload = fileHandler.builderTransportFile(param);
                 // 原属性覆盖并保存
                 upload.setFolderHash(file.getFolderHash());
-                upload.setFileSaveType(file.getFileSaveType());
+                upload.setSaveType(file.getSaveType());
                 fileMapper.insert(upload);
                 return upload;
             }
@@ -151,7 +151,7 @@ public class FileServiceImpl implements FileService {
     @Transactional(propagation = Propagation.SUPPORTS)
     public void deleteBy(String fileHash) {
         LambdaQueryWrapper<File> wrapper = Wrappers.lambdaQuery();
-        wrapper.eq(File::getFileHash, fileHash);
+        wrapper.eq(File::getHash, fileHash);
         fileMapper.delete(wrapper);
     }
 

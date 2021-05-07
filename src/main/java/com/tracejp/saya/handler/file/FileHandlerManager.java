@@ -80,7 +80,7 @@ public class FileHandlerManager {
             // 首次分片上传
             if (param.getChunkNumber() == 1) {
                 TransportFile file = initUpload(param);
-                AttachmentType type = ValueEnum.valueToEnum(AttachmentType.class, file.getFileSaveType());
+                AttachmentType type = ValueEnum.valueToEnum(AttachmentType.class, file.getSaveType());
                 UploadResult result = getSupportedType(type).upload(param, file);
                 cacheSlice(param.getIdentifier(), result);
             } else {
@@ -89,7 +89,7 @@ public class FileHandlerManager {
                 TransportFile file = getFirstUpload(param.getIdentifier());
                 if (Objects.nonNull(file)) {
 
-                    AttachmentType type = ValueEnum.valueToEnum(AttachmentType.class, file.getFileSaveType());
+                    AttachmentType type = ValueEnum.valueToEnum(AttachmentType.class, file.getSaveType());
                     String uploadKey = RedisCacheKeys.FILE_UPLOAD_PREFIX + param.getIdentifier();
                     String initKey = RedisCacheKeys.FILE_INIT_PREFIX + param.getIdentifier();
 
@@ -130,8 +130,8 @@ public class FileHandlerManager {
 
         // 单文件上传
         TransportFile entity = builderTransportFile(param);
-        String fileKey = entity.getFileHash() + entity.getFileExtension();
-        getSupportedType(ValueEnum.valueToEnum(AttachmentType.class, entity.getFileSaveType()))
+        String fileKey = entity.getHash() + entity.getExtension();
+        getSupportedType(ValueEnum.valueToEnum(AttachmentType.class, entity.getSaveType()))
                 .upload(param.getFile(), fileKey);
         return entity;
 
@@ -142,14 +142,14 @@ public class FileHandlerManager {
      * @param file 文件实体
      */
     public void doDownload(File file) {
-        AttachmentType type = ValueEnum.valueToEnum(AttachmentType.class, file.getFileSaveType());
+        AttachmentType type = ValueEnum.valueToEnum(AttachmentType.class, file.getSaveType());
 
         HttpServletRequest request = ServletUtils.getCurrentRequest()
                 .orElseThrow(() -> new ServiceException("未找到请求对象"));
         HttpServletResponse response = ServletUtils.getCurrentResponse()
                 .orElseThrow(() -> new ServiceException("为找到响应对象"));
 
-        long fileTotalSize = Long.parseLong(file.getFileSize());
+        long fileTotalSize = Long.parseLong(file.getSize());
         long startByte = 0L;
         long endByte = fileTotalSize;
 
@@ -187,14 +187,14 @@ public class FileHandlerManager {
 
         // 设置下载基本响应头
         response.setContentType("application/x-download");
-        response.addHeader("Content-Disposition", "attachment;filename=" + file.getFileName() +
-                file.getFileExtension());
+        response.addHeader("Content-Disposition", "attachment;filename=" + file.getName() +
+                file.getExtension());
         String contentRange = startByte + "-" + endByte + "/" + fileTotalSize;
         response.setHeader("Content-Range", contentRange);
         response.setHeader("Content-Length", String.valueOf(endByte - startByte));
 
         // 交给对应文件处理器下载
-        String fileKey = file.getFileHash() + file.getFileExtension();
+        String fileKey = file.getHash() + file.getExtension();
         if (endByte - startByte == fileTotalSize) {
             getSupportedType(type).download(fileKey, endByte, response);
         } else {
@@ -212,9 +212,9 @@ public class FileHandlerManager {
 
         // 构造初始化文件上传实体
         TransportFile entity = builderTransportFile(param);
-        AttachmentType type = ValueEnum.valueToEnum(AttachmentType.class, entity.getFileSaveType());
+        AttachmentType type = ValueEnum.valueToEnum(AttachmentType.class, entity.getSaveType());
         entity.setOtherParam(getSupportedType(type)
-                .initUpload(entity.getFileHash() + entity.getFileExtension()));
+                .initUpload(entity.getHash() + entity.getExtension()));
 
         // 保存到redis中
         String key = RedisCacheKeys.FILE_INIT_PREFIX + param.getIdentifier();
@@ -234,25 +234,25 @@ public class FileHandlerManager {
 
         // 选择分发文件处理器
         AttachmentType type = chooseType(param);
-        file.setFileSaveType(type.getValue());
+        file.setSaveType(type.getValue());
 
         // 构建基本属性
-        file.setFileHash(IdUtil.fastSimpleUUID());
+        file.setHash(IdUtil.fastSimpleUUID());
         file.setFolderHash(param.getFolderHash());
         file.setDriveId(SayaUtils.getDriveId());
-        file.setFileStatus(BaseStatusEnum.NORMAL.getValue());
+        file.setStatus(BaseStatusEnum.NORMAL.getValue());
         file.setStarredFlag(YesNoStrEnum.NO.getValue());
-        file.setFileMd5(param.getFileMd5());
+        file.setMd5(param.getFileMd5());
 
         // 根据是否分片上传分片构建属性
         String fileKey;
         if (param.getEnableChunk()) {
-            file.setFileUploadId(param.getIdentifier());
-            file.setFileSize(String.valueOf(param.getTotalSize()));
+            file.setUploadId(param.getIdentifier());
+            file.setSize(String.valueOf(param.getTotalSize()));
             fileKey = param.getRelativePath();
         } else {
-            file.setFileUploadId(IdUtil.fastSimpleUUID());
-            file.setFileSize(String.valueOf(param.getFile().getSize()));
+            file.setUploadId(IdUtil.fastSimpleUUID());
+            file.setSize(String.valueOf(param.getFile().getSize()));
             fileKey = param.getFile().getOriginalFilename();
         }
 
@@ -260,11 +260,11 @@ public class FileHandlerManager {
         if (StringUtils.isNotEmpty(fileKey)) {
             int lastPoint = fileKey.lastIndexOf('.');
             if (lastPoint == -1) {
-                file.setFileName(fileKey);
-                file.setFileExtension("");
+                file.setName(fileKey);
+                file.setExtension("");
             } else {
-                file.setFileName(fileKey.substring(0, lastPoint - 1));
-                file.setFileExtension(fileKey.substring(lastPoint));
+                file.setName(fileKey.substring(0, lastPoint - 1));
+                file.setExtension(fileKey.substring(lastPoint));
             }
         } else {
             throw new FileTransportException("未能获取文件名，或者文件名为空");

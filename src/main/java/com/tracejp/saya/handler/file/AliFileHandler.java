@@ -67,7 +67,7 @@ public class AliFileHandler implements FileHandler {
         // 构建上传当前分片请求
         UploadPartRequest uploadPartRequest = new UploadPartRequest();
         uploadPartRequest.setBucketName(aliOssProperties.getBucketName());
-        uploadPartRequest.setKey(initFile.getFileHash() + initFile.getFileExtension());
+        uploadPartRequest.setKey(initFile.getHash() + initFile.getExtension());
         uploadPartRequest.setUploadId(file.getIdentifier());
         try (InputStream in = file.getFile().getInputStream()) {
             uploadPartRequest.setInputStream(in);
@@ -102,7 +102,7 @@ public class AliFileHandler implements FileHandler {
     @Override
     public void merge(List<UploadResult> results, TransportFile initFile) {
         OSS client = createClient();
-        String fileKey = initFile.getFileHash() + initFile.getFileExtension();
+        String fileKey = initFile.getHash() + initFile.getExtension();
         String ossUploadId = (String) initFile.getOtherParam().get(UPLOAD_ID_KEY);
         List<PartETag> partETags = new ArrayList<>();
         for (UploadResult result : results) {
@@ -118,7 +118,7 @@ public class AliFileHandler implements FileHandler {
     @Override
     public void abort(TransportFile initFile) {
         OSS client = createClient();
-        String fileKey = initFile.getFileHash() + initFile.getFileExtension();
+        String fileKey = initFile.getHash() + initFile.getExtension();
         String ossUploadId = (String) initFile.getOtherParam().get(UPLOAD_ID_KEY);
         AbortMultipartUploadRequest abortMultipartUploadRequest =
                 new AbortMultipartUploadRequest(aliOssProperties.getBucketName(), fileKey, ossUploadId);

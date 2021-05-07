@@ -28,16 +28,16 @@ public class Code extends SuperEntity {
     private String delFlag;
 
     @ApiModelProperty(value = "激活码")
-    private String codeContent;
+    private String key;
 
     @ApiModelProperty(value = "过期时间")
-    private LocalDateTime codeExpiry;
+    private LocalDateTime expiry;
 
     @ApiModelProperty(value = "激活码使用总次数")
-    private Integer codeAccessTotal;
+    private Integer accessTotal;
 
     @ApiModelProperty(value = "激活码已使用次数")
-    private Integer codeAccessUsed;
+    private Integer accessUsed;
 
     @ApiModelProperty(value = "增加云盘空间字节数")
     private Long incrCloud;

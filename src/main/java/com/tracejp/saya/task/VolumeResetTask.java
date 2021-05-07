@@ -48,7 +48,7 @@ public class VolumeResetTask {
             do {
                 volumeIPage = volumeService.listOfPage(pageCount, PAGE_SIZE);
                 for (Volume volume : volumeIPage.getRecords()) {
-                    if (!volume.getVolumeCdnTotal().equals(volume.getVolumeCdnUsed())) {
+                    if (!volume.getCdnTotal().equals(volume.getCdnUsed())) {
                         refreshCdn(volume);
                     }
                     userCount++;
@@ -69,7 +69,7 @@ public class VolumeResetTask {
      */
     @Async
     public void refreshCdn(Volume volume) {
-        volume.setVolumeCdnUsed(volume.getVolumeCdnTotal());
+        volume.setCdnUsed(volume.getCdnTotal());
         for (int i = 1; i <= ABNORMAL_RETRY_TAGE; i++) {
             try {
                 volumeService.updateById(volume);

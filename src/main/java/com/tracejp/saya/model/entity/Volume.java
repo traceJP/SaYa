@@ -33,16 +33,16 @@ public class Volume extends SuperEntity {
     private String driveId;
 
     @ApiModelProperty(value = "云盘总容量")
-    private Long volumeCloudTotal;
+    private Long cloudTotal;
 
     @ApiModelProperty(value = "云盘已使用的容量")
-    private Long volumeCloudUsed;
+    private Long cloudUsed;
 
     @ApiModelProperty(value = "云盘下载总量（字节）")
-    private Long volumeCdnTotal;
+    private Long cdnTotal;
 
     @ApiModelProperty(value = "云盘已下载总量（字节）")
-    private Long volumeCdnUsed;
+    private Long cdnUsed;
 
 
 }

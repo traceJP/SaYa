@@ -32,10 +32,10 @@ public class User extends SuperEntity {
     private String driveId;
 
     @ApiModelProperty(value = "用户类型（00系统用户 01注册用户）")
-    private String userType;
+    private String type;
 
     @ApiModelProperty(value = "用户昵称")
-    private String userName;
+    private String name;
 
     @ApiModelProperty(value = "用户邮箱")
     private String email;

@@ -31,7 +31,7 @@ public class MenuController {
     @ApiOperation("根据角色获取对应菜单信息")
     @GetMapping("/list")
     public List<Menu> roleMenu() {
-        AuthRoleEnum role = ValueEnum.valueToEnum(AuthRoleEnum.class, SayaUtils.getUserByShiro().getUserType());
+        AuthRoleEnum role = ValueEnum.valueToEnum(AuthRoleEnum.class, SayaUtils.getUserByShiro().getType());
         return menuService.listMenu(role);
     }
 
