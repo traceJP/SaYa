@@ -24,7 +24,6 @@ import java.util.Optional;
 @Api("公用系统登录接口")
 @RestController
 @RequestMapping("/login")
-@CrossOrigin
 public class LoginController {
 
     @Autowired

@@ -33,5 +33,10 @@ public abstract class RedisCacheKeys {
      */
     public static final String USER_INFO_DOMAIN = "user";
 
+    /**
+     * 菜单信息缓存
+     */
+    public static final String USER_MENU_DOMAIN = "menu";
+
 
 }

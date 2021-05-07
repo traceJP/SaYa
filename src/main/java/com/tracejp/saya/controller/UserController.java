@@ -5,11 +5,11 @@ import com.tracejp.saya.model.dto.UserDto;
 import com.tracejp.saya.model.params.UserParam;
 import com.tracejp.saya.model.support.BaseResponse;
 import com.tracejp.saya.service.UserService;
+import com.tracejp.saya.utils.SayaUtils;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import org.springframework.stereotype.Controller;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -29,10 +29,10 @@ public class UserController {
     private UserService userService;
 
     @ApiOperation("通过driveId获取用户基本信息")
-    @GetMapping("/get/{drive}")
-    public BaseResponse<UserDto> getUser(@PathVariable("drive") String drive) {
-        UserDto userDto = new UserDto().convertFrom(userService.getByDrive(drive));
-        return BaseResponse.ok(userDto);
+    @GetMapping("/get")
+    public UserDto getUser() {
+        String drive = SayaUtils.getDriveId();
+        return new UserDto().convertFrom(userService.getByDrive(drive));
     }
 
     @ApiOperation("修改用户基本信息")

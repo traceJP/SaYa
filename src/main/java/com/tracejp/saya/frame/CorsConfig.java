@@ -34,6 +34,7 @@ public class CorsConfig {
         corsConfiguration.addAllowedHeader("*");
         corsConfiguration.addAllowedMethod("*");
         corsConfiguration.addAllowedOrigin("*");
+        corsConfiguration.addExposedHeader("*");
         source.registerCorsConfiguration("/**", corsConfiguration);
         return new CorsFilter(source);
     }

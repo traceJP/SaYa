@@ -52,6 +52,7 @@ public class FolderController {
 
     @ApiOperation("删除文件夹以及文件夹内的所有文件")
     @ApiImplicitParam(name = "folderHash", value = "文件夹哈希")
+    @DeleteMapping("/delete")
     public BaseResponse<?> delete(String folderHash) {
         folderService.deleteBy(folderHash);
         return BaseResponse.ok("文件夹已被永久移除");

@@ -99,7 +99,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<UserDto> authenticateByPassword(String phone, String password) {
         Subject subject = SecurityUtils.getSubject();
-        UsernamePasswordToken token = new UsernamePasswordToken(String.valueOf(phone), password);
+        UsernamePasswordToken token = new UsernamePasswordToken(phone, password);
         subject.login(token);
         User user = (User) subject.getPrincipal();
         return Optional.of(loginSuccess(user));
