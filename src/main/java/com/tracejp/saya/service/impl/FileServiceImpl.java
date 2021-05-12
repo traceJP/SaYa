@@ -60,7 +60,7 @@ public class FileServiceImpl implements FileService {
                 .orElseThrow(() -> new ServiceException("未找到用户容量记录"));
         long newCloudVolume = param.getTotalSize() + userVolume.getCloudUsed();
         if (newCloudVolume > userVolume.getCloudTotal()) {
-            throw new FileTransportException("当前云盘容量使用已满");
+            throw new ServiceException("当前云盘容量使用已满");
         }
 
         // 秒传处理

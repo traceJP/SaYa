@@ -13,9 +13,9 @@ public class UserDto implements OutputConverter<UserDto, User> {
 
     private String driveId;
 
-    private String userType;
+    private String type;
 
-    private String userName;
+    private String name;
 
     private String email;
 

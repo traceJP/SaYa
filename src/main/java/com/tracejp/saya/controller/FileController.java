@@ -1,9 +1,11 @@
 package com.tracejp.saya.controller;
 
 
+import com.tracejp.saya.exception.ServiceException;
 import com.tracejp.saya.model.entity.File;
 import com.tracejp.saya.model.params.FileParam;
 import com.tracejp.saya.model.params.UploadParam;
+import com.tracejp.saya.model.support.BadResponse;
 import com.tracejp.saya.model.support.BaseResponse;
 import com.tracejp.saya.service.FileService;
 import io.swagger.annotations.Api;
@@ -11,9 +13,11 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.Optional;
 
 /**
@@ -39,9 +43,19 @@ public class FileController {
             @ApiImplicitParam(name = "file", value = "上传的文件内容")
     })
     @PostMapping("/upload")
-    public BaseResponse<File> upload(UploadParam param, @RequestPart MultipartFile file) {
+    public BaseResponse<File> upload(UploadParam param, @RequestPart MultipartFile file, HttpServletResponse response) {
+        param.setFileMd5(param.getIdentifier());
         param.setFile(file);
-        Optional<File> result = fileService.upload(param);
+        Optional<File> result = Optional.empty();
+        try {
+            result = fileService.upload(param);
+        } catch (ServiceException e) {
+            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            return BadResponse.bad(e.getMessage());
+        } catch (Exception e) {
+            response.setStatus(HttpStatus.METHOD_NOT_ALLOWED.value());
+            return BadResponse.bad(e.getMessage());
+        }
         return result.map(value -> BaseResponse.ok("文件上传成功", value))
                 .orElseGet(() -> BaseResponse.ok("当前分片已经上传成功"));
     }
@@ -56,7 +70,7 @@ public class FileController {
     @ApiOperation("文件基本信息修改")
     @ApiImplicitParam(name = "param", value = "需要修改的文件基本信息")
     @PutMapping("/update")
-    public BaseResponse<File> update(FileParam param) {
+    public BaseResponse<File> update(@RequestBody FileParam param) {
         return BaseResponse.ok("文件信息修改成功", fileService.update(param));
     }
 

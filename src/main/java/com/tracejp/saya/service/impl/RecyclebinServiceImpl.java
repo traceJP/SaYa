@@ -37,7 +37,7 @@ public class RecyclebinServiceImpl implements RecyclebinService {
                 recyclebin.getHashId(), recyclebin.getHashType())) {
             throw new MissingPropertyException("创建recyclebin记录存在属性为空");
         }
-        if (StringUtils.equals(recyclebin.getHashType(), "1") || StringUtils.equals(recyclebin.getHashType(), "2")) {
+        if (!(StringUtils.equals(recyclebin.getHashType(), "1") || StringUtils.equals(recyclebin.getHashType(), "2"))) {
             throw new MissingPropertyException("创建recyclebin记录指定存储类型错误");
         }
         SayaUtils.influence(recyclebinMapper.insert(recyclebin));

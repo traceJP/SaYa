@@ -2,6 +2,7 @@ package com.tracejp.saya.model.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.tracejp.saya.model.entity.base.SuperEntity;
+import com.tracejp.saya.utils.SayaUtils;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -23,7 +24,7 @@ public class Recyclebin extends SuperEntity {
 
 
     @ApiModelProperty(value = "文件所属用户（外键）")
-    private String driveId;
+    private String driveId = SayaUtils.getDriveId();
 
     @ApiModelProperty(value = "文件或文件夹哈希（外键）")
     private String hashId;

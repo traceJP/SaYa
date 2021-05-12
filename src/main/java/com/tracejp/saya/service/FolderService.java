@@ -37,10 +37,9 @@ public interface FolderService {
     /**
      * 修改文件夹基本信息
      * @param folderInfo 文件夹参数
-     * @param folderHash 文件夹哈希
      * @return 修改的文件夹实体
      */
-    Folder updateFolder(FolderParam folderInfo, String folderHash);
+    Folder updateFolder(FolderParam folderInfo);
 
     /**
      * 删除文件夹

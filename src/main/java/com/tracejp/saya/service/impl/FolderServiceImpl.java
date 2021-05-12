@@ -54,12 +54,12 @@ public class FolderServiceImpl implements FolderService {
 
     @Override
     public Folder createFolder(FolderParam folder) {
-        if (StringUtils.isAllBlank(folder.getFolderName(), folder.getFolderParentHash())) {
+        if (StringUtils.isAllBlank(folder.getName(), folder.getParentHash())) {
             throw new ServiceException("传入参数错误");
         }
 
         // 检查是否存在父节点
-        hasFolder(folder.getFolderParentHash());
+        hasFolder(folder.getParentHash());
 
         // 构建entity新增记录
         Folder entity = folder.convertTo();
@@ -85,16 +85,16 @@ public class FolderServiceImpl implements FolderService {
     }
 
     @Override
-    public Folder updateFolder(FolderParam folderInfo, String folderHash) {
-        if (StringUtils.isAllBlank(folderInfo.getFolderName(), folderInfo.getFolderParentHash()) &&
+    public Folder updateFolder(FolderParam folderInfo) {
+        if (StringUtils.isAllBlank(folderInfo.getName(), folderInfo.getParentHash()) &&
                 YesNoStrEnum.isNotInclude(folderInfo.getStarredFlag())) {
             throw new ServiceException("传入参数错误");
         }
         LambdaUpdateWrapper<Folder> wrapper = Wrappers.lambdaUpdate();
-        wrapper.eq(Folder::getHash, folderHash);
+        wrapper.eq(Folder::getHash, folderInfo.getHash());
         wrapper.eq(Folder::getDriveId, SayaUtils.getDriveId());
         SayaUtils.influence(folderMapper.update(folderInfo.convertTo(), wrapper));
-        return getByHash(folderHash).orElseThrow(() -> new NotFoundException("文件夹基本信息未找到"));
+        return getByHash(folderInfo.getHash()).orElseThrow(() -> new NotFoundException("文件夹基本信息未找到"));
     }
 
     @Override
@@ -126,29 +126,21 @@ public class FolderServiceImpl implements FolderService {
         for (Recyclebin trash : trashes) {
             if (StringUtils.equals(trash.getHashType(), "1")) {
                 // 文件排除
-                files.forEach((v) -> {
-                    if (StringUtils.equals(v.getHash(), trash.getHashId())) {
-                        files.remove(v);
-                    }
-                });
+                files.removeIf(file -> StringUtils.equals(file.getHash(), trash.getHashId()));
             } else if (StringUtils.equals(trash.getHashType(), "2")) {
                 // 文件夹排除
-                folders.forEach((v) -> {
-                    if (StringUtils.equals(v.getHash(), trash.getHashId())) {
-                        folders.remove(v);
-                    }
-                });
+                folders.removeIf(folder -> StringUtils.equals(folder.getHash(), trash.getHashId()));
             }
         }
-        res.addAll(files);
         res.addAll(folders);
+        res.addAll(files);
         return res;
     }
 
     @Override
     public List<Folder> getList(String folderHash) {
         LambdaUpdateWrapper<Folder> wrapper = Wrappers.lambdaUpdate();
-        wrapper.eq(Folder::getHash, folderHash);
+        wrapper.eq(Folder::getParentHash, folderHash);
         return folderMapper.selectList(wrapper);
     }
 

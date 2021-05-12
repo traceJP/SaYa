@@ -13,9 +13,11 @@ import lombok.Data;
 @Data
 public class FolderParam implements InputConverter<Folder> {
 
-    private String folderName;
+    private String hash;
 
-    private String folderParentHash;
+    private String name;
+
+    private String parentHash;
 
     private String starredFlag;
 

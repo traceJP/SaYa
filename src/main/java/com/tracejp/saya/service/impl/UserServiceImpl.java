@@ -149,11 +149,11 @@ public class UserServiceImpl implements UserService {
 
         if (Objects.nonNull(userParam)) {
             // 用户名修改
-            if (StringUtils.isNotBlank(userParam.getUserName())) {
-                if (RegexUtils.isLengOut(userParam.getUserName(), 20)) {
+            if (StringUtils.isNotBlank(userParam.getName())) {
+                if (RegexUtils.isLengOut(userParam.getName(), 20)) {
                     throw new ServiceException("用户名过长");
                 }
-                user.setName(userParam.getUserName());
+                user.setName(userParam.getName());
                 modified = true;
             }
 

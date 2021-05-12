@@ -11,7 +11,7 @@ import lombok.Data;
 @Data
 public class UserParam implements InputConverter<User> {
 
-    private String userName;
+    private String name;
 
     private String email;
 

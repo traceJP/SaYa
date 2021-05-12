@@ -20,7 +20,7 @@ public class FileParam implements InputConverter<File> {
     private String folderHash;
 
     @ApiModelProperty(value = "文件名")
-    private String fileName;
+    private String name;
 
     @ApiModelProperty(value = "加星标志（0未加 1已加）")
     private String starredFlag;
