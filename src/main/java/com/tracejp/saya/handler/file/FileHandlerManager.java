@@ -29,9 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.nio.charset.StandardCharsets;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -72,6 +70,7 @@ public class FileHandlerManager {
      * @param param 上传参数
      * @return 上传成功则返回上传的文件所有参数，未上传完成返回null，上传失败抛出异常
      */
+    @SuppressWarnings("unchecked")
     public TransportFile doUpload(UploadParam param) {
 
         // 做分片上传
@@ -98,20 +97,19 @@ public class FileHandlerManager {
                     cacheSlice(param.getIdentifier(), result);
 
                     // 合并判断
-                    boolean isMerge = false;
                     TransportFile transportFile = null;
-                    List<UploadResult> list = null;
+                    Map<String, UploadResult> map = null;
                     synchronized (this) {
-                        if (redisUtils.lGetListSize(uploadKey) >= param.getTotalChunks()) {
-                            isMerge = true;
+                        if (redisUtils.hlen(uploadKey) == param.getTotalChunks()) {
                             transportFile = (TransportFile) redisUtils.get(initKey);
-                            list = (List) redisUtils.lGet(uploadKey, 0, -1);
+                            map = (Map) redisUtils.hmget(uploadKey);
                             redisUtils.del(initKey, uploadKey);
                         }
                     }
 
                     // 合并操作
-                    if (isMerge && Objects.nonNull(transportFile) && Objects.nonNull(list)) {
+                    if (Objects.nonNull(transportFile) && Objects.nonNull(map)) {
+                        List<UploadResult> list = new ArrayList<>(map.values());
                         getSupportedType(type).merge(list, transportFile);
                         return transportFile;
                     }
@@ -218,7 +216,7 @@ public class FileHandlerManager {
 
         // 保存到redis中
         String key = RedisCacheKeys.FILE_INIT_PREFIX + param.getIdentifier();
-        redisUtils.set(key, entity, UPLOAD_TIMEOUT);
+        redisUtils.setNx(key, entity, UPLOAD_TIMEOUT);
 
         return entity;
     }
@@ -290,7 +288,7 @@ public class FileHandlerManager {
      */
     private void cacheSlice(String uploadId, UploadResult result) {
         String key = RedisCacheKeys.FILE_UPLOAD_PREFIX + uploadId;
-        redisUtils.lSet(key, result, UPLOAD_TIMEOUT);
+        redisUtils.hset(key, String.valueOf(result.getChunkNumber()), result, UPLOAD_TIMEOUT);
     }
 
     /**

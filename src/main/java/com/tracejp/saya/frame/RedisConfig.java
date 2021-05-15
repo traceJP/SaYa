@@ -49,7 +49,7 @@ public class RedisConfig {
         template.setHashKeySerializer(stringRedisSerializer);
         //为value设置序列化器
         template.setValueSerializer(jackson2JsonRedisSerializer);
-        template.setHashKeySerializer(jackson2JsonRedisSerializer);
+        template.setHashValueSerializer(jackson2JsonRedisSerializer);
 
         template.afterPropertiesSet();
         return template;
