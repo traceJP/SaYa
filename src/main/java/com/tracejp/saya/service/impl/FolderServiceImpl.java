@@ -16,6 +16,7 @@ import com.tracejp.saya.model.params.FolderParam;
 import com.tracejp.saya.service.FileService;
 import com.tracejp.saya.service.FolderService;
 import com.tracejp.saya.service.RecyclebinService;
+import com.tracejp.saya.service.base.impl.BaseServiceImpl;
 import com.tracejp.saya.utils.SayaUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -39,7 +40,7 @@ import java.util.Optional;
  */
 @Service
 @Slf4j
-public class FolderServiceImpl implements FolderService {
+public class FolderServiceImpl extends BaseServiceImpl<FolderMapper, Folder> implements FolderService {
 
     @Autowired
     private FolderMapper folderMapper;

@@ -1,7 +1,10 @@
 package com.tracejp.saya.service.impl;
 
 
+import com.tracejp.saya.mapper.ShareMapper;
+import com.tracejp.saya.model.entity.Share;
 import com.tracejp.saya.service.ShareService;
+import com.tracejp.saya.service.base.impl.BaseServiceImpl;
 import org.springframework.stereotype.Service;
 
 /**
@@ -13,6 +16,6 @@ import org.springframework.stereotype.Service;
  * @since 2021-04-06
  */
 @Service
-public class ShareServiceImpl implements ShareService {
+public class ShareServiceImpl extends BaseServiceImpl<ShareMapper, Share> implements ShareService {
 
 }

@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.tracejp.saya.mapper.UserLogMapper;
 import com.tracejp.saya.model.entity.UserLog;
 import com.tracejp.saya.service.UserLogService;
+import com.tracejp.saya.service.base.impl.BaseServiceImpl;
 import com.tracejp.saya.utils.SayaUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,7 @@ import java.util.List;
  * @since 2021-04-06
  */
 @Service
-public class UserLogServiceImpl implements UserLogService {
+public class UserLogServiceImpl extends BaseServiceImpl<UserLogMapper, UserLog> implements UserLogService {
 
     @Autowired
     private UserLogMapper userLogMapper;

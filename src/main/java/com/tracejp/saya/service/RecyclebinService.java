@@ -1,6 +1,7 @@
 package com.tracejp.saya.service;
 
 import com.tracejp.saya.model.entity.Recyclebin;
+import com.tracejp.saya.service.base.BaseService;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,7 +14,7 @@ import java.util.Optional;
  * @author TraceJP
  * @since 2021-04-06
  */
-public interface RecyclebinService {
+public interface RecyclebinService extends BaseService<Recyclebin> {
 
     /**
      * 创建

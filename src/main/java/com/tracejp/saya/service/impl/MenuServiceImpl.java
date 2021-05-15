@@ -8,6 +8,7 @@ import com.tracejp.saya.model.constant.RedisCacheKeys;
 import com.tracejp.saya.model.entity.Menu;
 import com.tracejp.saya.model.enums.AuthRoleEnum;
 import com.tracejp.saya.service.MenuService;
+import com.tracejp.saya.service.base.impl.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -24,7 +25,7 @@ import java.util.List;
  * @since 2021-04-06
  */
 @Service
-public class MenuServiceImpl implements MenuService {
+public class MenuServiceImpl extends BaseServiceImpl<MenuMapper, Menu> implements MenuService {
 
     @Autowired
     private MenuMapper menuMapper;

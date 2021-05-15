@@ -2,6 +2,7 @@ package com.tracejp.saya.service;
 
 import com.tracejp.saya.model.entity.Folder;
 import com.tracejp.saya.model.params.FolderParam;
+import com.tracejp.saya.service.base.BaseService;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,7 +15,7 @@ import java.util.Optional;
  * @author TraceJP
  * @since 2021-04-06
  */
-public interface FolderService {
+public interface FolderService extends BaseService<Folder> {
     /**
      * ROOT文件夹统一hash值
      */

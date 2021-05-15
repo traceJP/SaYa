@@ -7,6 +7,7 @@ import com.tracejp.saya.exception.MissingPropertyException;
 import com.tracejp.saya.mapper.RecyclebinMapper;
 import com.tracejp.saya.model.entity.Recyclebin;
 import com.tracejp.saya.service.RecyclebinService;
+import com.tracejp.saya.service.base.impl.BaseServiceImpl;
 import com.tracejp.saya.utils.SayaUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,7 @@ import java.util.Optional;
  * @since 2021-04-06
  */
 @Service
-public class RecyclebinServiceImpl implements RecyclebinService {
+public class RecyclebinServiceImpl extends BaseServiceImpl<RecyclebinMapper, Recyclebin> implements RecyclebinService {
 
     @Autowired
     private RecyclebinMapper recyclebinMapper;

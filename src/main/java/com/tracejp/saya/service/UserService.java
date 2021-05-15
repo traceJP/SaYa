@@ -3,6 +3,7 @@ package com.tracejp.saya.service;
 import com.tracejp.saya.model.dto.UserDto;
 import com.tracejp.saya.model.entity.User;
 import com.tracejp.saya.model.params.UserParam;
+import com.tracejp.saya.service.base.BaseService;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
@@ -15,7 +16,7 @@ import java.util.Optional;
  * @author TraceJP
  * @since 2021-04-06
  */
-public interface UserService {
+public interface UserService extends BaseService<User> {
 
     /**
      * Token响应头key

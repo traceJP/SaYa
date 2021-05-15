@@ -15,6 +15,7 @@ import com.tracejp.saya.model.params.UploadParam;
 import com.tracejp.saya.service.FileService;
 import com.tracejp.saya.service.FolderService;
 import com.tracejp.saya.service.VolumeService;
+import com.tracejp.saya.service.base.impl.BaseServiceImpl;
 import com.tracejp.saya.utils.SayaUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,7 +35,7 @@ import java.util.Optional;
  * @since 2021-04-06
  */
 @Service
-public class FileServiceImpl implements FileService {
+public class FileServiceImpl extends BaseServiceImpl<FileMapper, File> implements FileService {
 
     @Autowired
     private FileMapper fileMapper;
@@ -153,14 +154,6 @@ public class FileServiceImpl implements FileService {
         LambdaQueryWrapper<File> wrapper = Wrappers.lambdaQuery();
         wrapper.eq(File::getHash, fileHash);
         fileMapper.delete(wrapper);
-    }
-
-    @Override
-    public File getById(Integer id) {
-        LambdaQueryWrapper<File> wrapper = Wrappers.lambdaQuery();
-        wrapper.eq(File::getId, id);
-        wrapper.eq(File::getDriveId, SayaUtils.getDriveId());
-        return fileMapper.selectOne(wrapper);
     }
 
     @Override

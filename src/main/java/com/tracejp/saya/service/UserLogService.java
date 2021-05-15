@@ -1,6 +1,7 @@
 package com.tracejp.saya.service;
 
 import com.tracejp.saya.model.entity.UserLog;
+import com.tracejp.saya.service.base.BaseService;
 
 import java.util.List;
 
@@ -12,7 +13,7 @@ import java.util.List;
  * @author TraceJP
  * @since 2021-04-06
  */
-public interface UserLogService {
+public interface UserLogService extends BaseService<UserLog> {
 
     /**
      * 创建,记录属性可为空

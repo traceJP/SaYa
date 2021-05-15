@@ -8,6 +8,7 @@ import com.tracejp.saya.mapper.VolumeMapper;
 import com.tracejp.saya.model.entity.Volume;
 import com.tracejp.saya.model.properties.DefaultVolumeProperties;
 import com.tracejp.saya.service.VolumeService;
+import com.tracejp.saya.service.base.impl.BaseServiceImpl;
 import com.tracejp.saya.utils.SayaUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,7 @@ import java.util.Optional;
  * @since 2021-04-06
  */
 @Service
-public class VolumeServiceImpl implements VolumeService {
+public class VolumeServiceImpl extends BaseServiceImpl<VolumeMapper, Volume> implements VolumeService {
 
     @Autowired
     private VolumeMapper volumeMapper;
@@ -55,11 +56,6 @@ public class VolumeServiceImpl implements VolumeService {
         LambdaQueryWrapper<Volume> wrapper = Wrappers.lambdaQuery();
         wrapper.eq(Volume::getDriveId, driveId);
         SayaUtils.influence(volumeMapper.delete(wrapper));
-    }
-
-    @Override
-    public void updateById(Volume volume) {
-        SayaUtils.influence(volumeMapper.updateById(volume));
     }
 
     @Override

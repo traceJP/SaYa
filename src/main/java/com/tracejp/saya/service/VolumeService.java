@@ -2,6 +2,7 @@ package com.tracejp.saya.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.tracejp.saya.model.entity.Volume;
+import com.tracejp.saya.service.base.BaseService;
 
 import java.util.Optional;
 
@@ -13,7 +14,7 @@ import java.util.Optional;
  * @author TraceJP
  * @since 2021-04-06
  */
-public interface VolumeService {
+public interface VolumeService extends BaseService<Volume> {
 
     /**
      * 创建
@@ -32,12 +33,6 @@ public interface VolumeService {
      * @param driveId 用户uuid
      */
     void deleteBy(String driveId);
-
-    /**
-     * 通过id修改
-     * @param volume Volume
-     */
-    void updateById(Volume volume);
 
     /**
      * 通过driveId获取

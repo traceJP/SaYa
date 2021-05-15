@@ -20,6 +20,7 @@ import com.tracejp.saya.model.params.UserParam;
 import com.tracejp.saya.service.FolderService;
 import com.tracejp.saya.service.UserService;
 import com.tracejp.saya.service.VolumeService;
+import com.tracejp.saya.service.base.impl.BaseServiceImpl;
 import com.tracejp.saya.utils.RegexUtils;
 import com.tracejp.saya.utils.SayaUtils;
 import com.tracejp.saya.utils.ServletUtils;
@@ -50,7 +51,7 @@ import java.util.Optional;
  */
 @Service
 @Slf4j
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implements UserService {
 
     @Autowired
     private UserMapper userMapper;

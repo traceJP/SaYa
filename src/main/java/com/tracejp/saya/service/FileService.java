@@ -4,6 +4,7 @@ package com.tracejp.saya.service;
 import com.tracejp.saya.model.entity.File;
 import com.tracejp.saya.model.params.FileParam;
 import com.tracejp.saya.model.params.UploadParam;
+import com.tracejp.saya.service.base.BaseService;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,7 +17,7 @@ import java.util.Optional;
  * @author TraceJP
  * @since 2021-04-06
  */
-public interface FileService {
+public interface FileService extends BaseService<File> {
 
     /**
      * 文件上传
@@ -50,13 +51,6 @@ public interface FileService {
      * @param fileHash 文件哈希
      */
     void deleteBy(String fileHash);
-
-    /**
-     * 通过id获取文件信息
-     * @param id 自增id
-     * @return File
-     */
-    File getById(Integer id);
 
     /**
      * 通过文件夹哈希获取文件列表
