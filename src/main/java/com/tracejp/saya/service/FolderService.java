@@ -1,7 +1,9 @@
 package com.tracejp.saya.service;
 
 import com.tracejp.saya.model.entity.Folder;
+import com.tracejp.saya.model.params.FolderAllQuery;
 import com.tracejp.saya.model.params.FolderParam;
+import com.tracejp.saya.model.params.base.BaseFileQuery;
 import com.tracejp.saya.service.base.BaseService;
 
 import java.util.List;
@@ -57,10 +59,24 @@ public interface FolderService extends BaseService<Folder> {
 
     /**
      * 查询文件夹所有内容（文件夹和文件）
-     * @param folderHash 文件夹哈希
+     * @param query 查询参数
      * @return 文件内容列表
      */
-    List<Object> getAll(String folderHash);
+    List<Object> getAll(FolderAllQuery query);
+
+    /**
+     * 查询文件夹内所有加星的内容（文件夹和文件）
+     * @param query 查询参数
+     * @return 文件夹列表
+     */
+    List<Object> getListByStar(BaseFileQuery query);
+
+    /**
+     * 查询文件夹中的所有文件夹
+     * @param query 查询条件
+     * @return 文件夹列表
+     */
+    List<Folder> getList(FolderAllQuery query);
 
     /**
      * 查询文件夹中的所有文件夹

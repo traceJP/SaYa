@@ -3,7 +3,9 @@ package com.tracejp.saya.controller;
 
 import com.tracejp.saya.exception.NotFoundException;
 import com.tracejp.saya.model.entity.Folder;
+import com.tracejp.saya.model.params.FolderAllQuery;
 import com.tracejp.saya.model.params.FolderParam;
+import com.tracejp.saya.model.params.base.BaseFileQuery;
 import com.tracejp.saya.model.support.BaseResponse;
 import com.tracejp.saya.service.FolderService;
 import io.swagger.annotations.Api;
@@ -53,16 +55,16 @@ public class FolderController {
     @ApiOperation("删除文件夹以及文件夹内的所有文件")
     @ApiImplicitParam(name = "folderHash", value = "文件夹哈希")
     @DeleteMapping("/delete")
-    public BaseResponse<?> delete(String folderHash) {
-        folderService.deleteBy(folderHash);
+    public BaseResponse<?> delete(String hash) {
+        folderService.deleteBy(hash);
         return BaseResponse.ok("文件夹已被永久移除");
     }
 
     @ApiOperation("获取文件夹中的所有内容（文件和文件夹）")
     @ApiImplicitParam(name = "folderHash", value = "文件夹哈希")
-    @GetMapping("/listAll")
-    public List<Object> quireAll(String folderHash) {
-        return folderService.getAll(folderHash);
+    @PostMapping("/list")
+    public List<Object> quireAll(@RequestBody FolderAllQuery query) {
+        return folderService.getAll(query);
     }
 
     @ApiOperation("获取文件夹中的所有文件夹")
@@ -72,10 +74,17 @@ public class FolderController {
         return folderService.getList(folderHash);
     }
 
+    @ApiOperation("获取文件夹中的所有内容（文件和文件夹）")
+    @ApiImplicitParam(name = "folderHash", value = "文件夹哈希")
+    @PostMapping("/list_star")
+    public List<Object> quireByStarYes(@RequestBody BaseFileQuery query) {
+        return folderService.getListByStar(query);
+    }
+
     @ApiOperation("获取文件夹基本信息")
     @ApiImplicitParam(name = "folderHash", value = "文件夹哈希")
     @GetMapping("/get")
-    public Folder quireFolderInfo(String folderHash) {
+    public Folder getBy(@RequestParam(defaultValue="root") String folderHash) {
         return folderService.getByHash(folderHash).orElseThrow(() -> new NotFoundException("文件信息不存在"));
     }
 

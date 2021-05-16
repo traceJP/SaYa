@@ -46,7 +46,7 @@ public class FileController {
     public BaseResponse<File> upload(UploadParam param, @RequestPart MultipartFile file, HttpServletResponse response) {
         param.setFileMd5(param.getIdentifier());
         param.setFile(file);
-        Optional<File> result = Optional.empty();
+        Optional<File> result;
         try {
             result = fileService.upload(param);
         } catch (ServiceException e) {
@@ -62,9 +62,9 @@ public class FileController {
 
     @ApiOperation("用户文件下载")
     @ApiImplicitParam(name = "fileHash", value = "目标下载文件哈希")
-    @GetMapping("/download/{fileHash}")
-    public void download(@PathVariable("fileHash") String fileHash) {
-        fileService.download(fileHash);
+    @GetMapping("/download/{hash}")
+    public void download(@PathVariable("hash") String hash) {
+        fileService.download(hash);
     }
 
     @ApiOperation("文件基本信息修改")
@@ -77,8 +77,8 @@ public class FileController {
     @ApiOperation("用户文件删除")
     @ApiImplicitParam(name = "fileHash", value = "目标删除文件哈希")
     @DeleteMapping("/delete")
-    public BaseResponse<?> delete(String fileHash) {
-        fileService.deleteBy(fileHash);
+    public BaseResponse<?> delete(String hash) {
+        fileService.deleteBy(hash);
         return BaseResponse.ok("文件已被永久移除");
     }
 

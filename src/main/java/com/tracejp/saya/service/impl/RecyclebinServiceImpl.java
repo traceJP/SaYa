@@ -2,17 +2,26 @@ package com.tracejp.saya.service.impl;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.tracejp.saya.exception.MissingPropertyException;
 import com.tracejp.saya.mapper.RecyclebinMapper;
+import com.tracejp.saya.model.entity.File;
+import com.tracejp.saya.model.entity.Folder;
 import com.tracejp.saya.model.entity.Recyclebin;
+import com.tracejp.saya.model.enums.OrderEnum;
+import com.tracejp.saya.model.params.base.BaseFileQuery;
+import com.tracejp.saya.service.FileService;
+import com.tracejp.saya.service.FolderService;
 import com.tracejp.saya.service.RecyclebinService;
 import com.tracejp.saya.service.base.impl.BaseServiceImpl;
 import com.tracejp.saya.utils.SayaUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -31,6 +40,13 @@ public class RecyclebinServiceImpl extends BaseServiceImpl<RecyclebinMapper, Rec
     @Autowired
     private RecyclebinMapper recyclebinMapper;
 
+    @Autowired
+    @Lazy
+    private FileService fileService;
+
+    @Autowired
+    @Lazy
+    private FolderService folderService;
 
     @Override
     public void createBy(Recyclebin recyclebin) {
@@ -78,6 +94,51 @@ public class RecyclebinServiceImpl extends BaseServiceImpl<RecyclebinMapper, Rec
         LambdaQueryWrapper<Recyclebin> wrapper = Wrappers.lambdaQuery();
         wrapper.eq(Recyclebin::getDriveId, driveId);
         return recyclebinMapper.selectList(wrapper);
+    }
+
+    @Override
+    public List<Object> listOfFolderContent(BaseFileQuery query) {
+        String drive = SayaUtils.getDriveId();
+        List<Recyclebin> list = listByDrive(drive);
+
+        // 区分file和folder
+        List<String> fileHash = new ArrayList<>();
+        List<String> folderHash = new ArrayList<>();
+        list.forEach(v -> {
+            if (StringUtils.equals(v.getHashType(), "1")) {
+                fileHash.add(v.getHashId());
+            } else if (StringUtils.equals(v.getHashType(), "2")) {
+                folderHash.add(v.getHashId());
+            }
+        });
+
+        List<Object> res = new ArrayList<>();
+
+        // 拼接file查询条件
+        if (!fileHash.isEmpty()) {
+            QueryWrapper<File> fileWrapper = new QueryWrapper<>();
+            fileWrapper.orderBy(true, query.isAsc(), query.getOrderBy().getValue());
+            fileWrapper.lambda()
+                    .in(File::getHash, fileHash)
+                    .eq(File::getDriveId, drive);
+            List<File> files = fileService.list(fileWrapper);
+            res.addAll(files);
+        }
+
+        // 拼接folder查询条件
+        if (!folderHash.isEmpty()) {
+            QueryWrapper<Folder> folderWrapper = new QueryWrapper<>();
+            if (query.getOrderBy() != OrderEnum.FILE_SIZE) {
+                folderWrapper.orderBy(true, query.isAsc(), query.getOrderBy().getValue());
+            }
+            folderWrapper.lambda()
+                    .in(Folder::getHash, folderHash)
+                    .eq(Folder::getDriveId, drive);
+            List<Folder> folders = folderService.list(folderWrapper);
+            res.addAll(folders);
+        }
+
+        return res;
     }
 
 }

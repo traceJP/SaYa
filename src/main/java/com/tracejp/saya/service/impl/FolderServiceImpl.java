@@ -2,6 +2,7 @@ package com.tracejp.saya.service.impl;
 
 import cn.hutool.core.util.IdUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.tracejp.saya.exception.NotFoundException;
@@ -11,8 +12,11 @@ import com.tracejp.saya.model.entity.File;
 import com.tracejp.saya.model.entity.Folder;
 import com.tracejp.saya.model.entity.Recyclebin;
 import com.tracejp.saya.model.enums.BaseStatusEnum;
+import com.tracejp.saya.model.enums.OrderEnum;
 import com.tracejp.saya.model.enums.YesNoStrEnum;
+import com.tracejp.saya.model.params.FolderAllQuery;
 import com.tracejp.saya.model.params.FolderParam;
+import com.tracejp.saya.model.params.base.BaseFileQuery;
 import com.tracejp.saya.service.FileService;
 import com.tracejp.saya.service.FolderService;
 import com.tracejp.saya.service.RecyclebinService;
@@ -50,6 +54,7 @@ public class FolderServiceImpl extends BaseServiceImpl<FolderMapper, Folder> imp
     private FileService fileService;
 
     @Autowired
+    @Lazy
     private RecyclebinService recyclebinService;
 
 
@@ -101,6 +106,7 @@ public class FolderServiceImpl extends BaseServiceImpl<FolderMapper, Folder> imp
     @Override
     @Transactional
     public void deleteBy(String folderHash) {
+        recyclebinService.getBy(folderHash, "2").orElseThrow(() -> new ServiceException("请勿强制移除文件夹"));
         List<File> files = fileService.listByFolder(folderHash);
         // 删除所有文件夹内文件
         files.forEach((v) -> fileService.deleteBy(v.getHash()));
@@ -108,6 +114,7 @@ public class FolderServiceImpl extends BaseServiceImpl<FolderMapper, Folder> imp
         LambdaUpdateWrapper<Folder> wrapper = Wrappers.lambdaUpdate();
         wrapper.eq(Folder::getHash, folderHash);
         folderMapper.delete(wrapper);
+        recyclebinService.deleteBy(folderHash, "2");
     }
 
     @Override
@@ -118,10 +125,10 @@ public class FolderServiceImpl extends BaseServiceImpl<FolderMapper, Folder> imp
     }
 
     @Override
-    public List<Object> getAll(String folderHash) {
+    public List<Object> getAll(FolderAllQuery query) {
         List<Object> res = new ArrayList<>();
-        List<File> files = fileService.listByFolder(folderHash);
-        List<Folder> folders = getList(folderHash);
+        List<File> files = fileService.listBy(query);
+        List<Folder> folders = getList(query);
         // 排除回收站内容
         List<Recyclebin> trashes = recyclebinService.listByDrive(SayaUtils.getDriveId());
         for (Recyclebin trash : trashes) {
@@ -136,6 +143,47 @@ public class FolderServiceImpl extends BaseServiceImpl<FolderMapper, Folder> imp
         res.addAll(folders);
         res.addAll(files);
         return res;
+    }
+
+    @Override
+    public List<Object> getListByStar(BaseFileQuery query) {
+        String drive = SayaUtils.getDriveId();
+
+        // file条件查询
+        QueryWrapper<File> fileWrapper = new QueryWrapper<>();
+        fileWrapper.orderBy(true, query.isAsc(), query.getOrderBy().getValue());
+        fileWrapper.lambda()
+                .eq(File::getDriveId, drive)
+                .eq(File::getStarredFlag, YesNoStrEnum.YES.getValue());
+        List<File> files = fileService.list(fileWrapper);
+
+        // folder条件查询
+        QueryWrapper<Folder> folderWrapper = new QueryWrapper<>();
+        if (query.getOrderBy() != OrderEnum.FILE_SIZE) {
+            folderWrapper.orderBy(true, query.isAsc(), query.getOrderBy().getValue());
+        }
+        folderWrapper.lambda()
+                .eq(Folder::getDriveId, drive)
+                .eq(Folder::getStarredFlag, YesNoStrEnum.YES.getValue());
+        List<Folder> folders = list(folderWrapper);
+
+        // 结果返回
+        List<Object> res = new ArrayList<>();
+        res.add(files);
+        res.add(folders);
+        return res;
+    }
+
+    @Override
+    public List<Folder> getList(FolderAllQuery query) {
+        QueryWrapper<Folder> wrapper = new QueryWrapper<>();
+        if (query.getOrderBy() != OrderEnum.FILE_SIZE) {
+            wrapper.orderBy(true, query.isAsc(), query.getOrderBy().getValue());
+        }
+        LambdaQueryWrapper<Folder> lambda = wrapper.lambda();
+        lambda.eq(Folder::getParentHash, query.getFolderHash())
+                .eq(Folder::getDriveId, query.getDriveId());
+        return folderMapper.selectList(wrapper);
     }
 
     @Override

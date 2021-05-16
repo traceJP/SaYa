@@ -48,7 +48,7 @@ public class File extends SuperEntity {
     private String hash;
 
     @ApiModelProperty(value = "文件大小（字节）")
-    private String size;
+    private Long size;
 
     @ApiModelProperty(value = "文件扩展名")
     private String extension;

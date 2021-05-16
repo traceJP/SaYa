@@ -3,6 +3,7 @@ package com.tracejp.saya.service;
 
 import com.tracejp.saya.model.entity.File;
 import com.tracejp.saya.model.params.FileParam;
+import com.tracejp.saya.model.params.FolderAllQuery;
 import com.tracejp.saya.model.params.UploadParam;
 import com.tracejp.saya.service.base.BaseService;
 
@@ -58,5 +59,12 @@ public interface FileService extends BaseService<File> {
      * @return 文件列表
      */
     List<File> listByFolder(String folderHash);
+
+    /**
+     * 通过查询参数查询文件夹内的所有文件
+     * @param query 查询参数
+     * @return 文件列表
+     */
+    List<File> listBy(FolderAllQuery query);
 
 }

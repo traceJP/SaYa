@@ -147,7 +147,7 @@ public class FileHandlerManager {
         HttpServletResponse response = ServletUtils.getCurrentResponse()
                 .orElseThrow(() -> new ServiceException("为找到响应对象"));
 
-        long fileTotalSize = Long.parseLong(file.getSize());
+        long fileTotalSize = file.getSize();
         long startByte = 0L;
         long endByte = fileTotalSize;
 
@@ -246,11 +246,11 @@ public class FileHandlerManager {
         String fileKey;
         if (param.getEnableChunk()) {
             file.setUploadId(param.getIdentifier());
-            file.setSize(String.valueOf(param.getTotalSize()));
+            file.setSize(param.getTotalSize());
             fileKey = param.getRelativePath();
         } else {
             file.setUploadId(IdUtil.fastSimpleUUID());
-            file.setSize(String.valueOf(param.getFile().getSize()));
+            file.setSize(param.getFile().getSize());
             fileKey = param.getFile().getOriginalFilename();
         }
 

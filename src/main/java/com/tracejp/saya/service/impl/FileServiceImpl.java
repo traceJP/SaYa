@@ -1,6 +1,7 @@
 package com.tracejp.saya.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.tracejp.saya.exception.FileTransportException;
@@ -11,9 +12,11 @@ import com.tracejp.saya.model.entity.File;
 import com.tracejp.saya.model.entity.Volume;
 import com.tracejp.saya.model.enums.BaseStatusEnum;
 import com.tracejp.saya.model.params.FileParam;
+import com.tracejp.saya.model.params.FolderAllQuery;
 import com.tracejp.saya.model.params.UploadParam;
 import com.tracejp.saya.service.FileService;
 import com.tracejp.saya.service.FolderService;
+import com.tracejp.saya.service.RecyclebinService;
 import com.tracejp.saya.service.VolumeService;
 import com.tracejp.saya.service.base.impl.BaseServiceImpl;
 import com.tracejp.saya.utils.SayaUtils;
@@ -45,6 +48,9 @@ public class FileServiceImpl extends BaseServiceImpl<FileMapper, File> implement
 
     @Autowired
     private VolumeService volumeService;
+
+    @Autowired
+    private RecyclebinService recyclebinService;
 
     @Autowired
     private FileHandlerManager fileHandler;
@@ -103,7 +109,7 @@ public class FileServiceImpl extends BaseServiceImpl<FileMapper, File> implement
         // 用户下载容量检查
         Volume userVolume = volumeService.getBy(SayaUtils.getDriveId())
                 .orElseThrow(() -> new FileTransportException("未找到用户容量记录表"));
-        long newCdnVolume = Long.parseLong(file.getSize()) + userVolume.getCdnUsed();
+        long newCdnVolume = file.getSize() + userVolume.getCdnUsed();
         if (newCdnVolume > userVolume.getCdnTotal()) {
             throw new FileTransportException("当前下载容量不足");
         }
@@ -151,9 +157,11 @@ public class FileServiceImpl extends BaseServiceImpl<FileMapper, File> implement
     @Override
     @Transactional(propagation = Propagation.SUPPORTS)
     public void deleteBy(String fileHash) {
+        recyclebinService.getBy(fileHash, "1").orElseThrow(() -> new ServiceException("请勿强制移除文件"));
         LambdaQueryWrapper<File> wrapper = Wrappers.lambdaQuery();
         wrapper.eq(File::getHash, fileHash);
         fileMapper.delete(wrapper);
+        recyclebinService.deleteBy(fileHash, "1");
     }
 
     @Override
@@ -162,6 +170,17 @@ public class FileServiceImpl extends BaseServiceImpl<FileMapper, File> implement
         LambdaQueryWrapper<File> wrapper = Wrappers.lambdaQuery();
         wrapper.eq(File::getFolderHash, folderHash);
         wrapper.eq(File::getDriveId, SayaUtils.getDriveId());
+        return fileMapper.selectList(wrapper);
+    }
+
+    @Override
+    public List<File> listBy(FolderAllQuery query) {
+        boolean isAsc = StringUtils.equals(query.getOrderDirection(), "ASC");
+        QueryWrapper<File> wrapper = new QueryWrapper<>();
+        wrapper.orderBy(true, isAsc, query.getOrderBy().getValue());
+        LambdaQueryWrapper<File> lambda = wrapper.lambda();
+        lambda.eq(File::getFolderHash, query.getFolderHash())
+                .eq(File::getDriveId, query.getDriveId());
         return fileMapper.selectList(wrapper);
     }
 

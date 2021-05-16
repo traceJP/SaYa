@@ -1,5 +1,7 @@
 package com.tracejp.saya.model.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.tracejp.saya.model.entity.base.SuperEntity;
 import com.tracejp.saya.utils.SayaUtils;
@@ -22,6 +24,9 @@ import lombok.EqualsAndHashCode;
 @ApiModel(value="Recyclebin对象", description="回收站")
 public class Recyclebin extends SuperEntity {
 
+    @ApiModelProperty(value = "删除标志（0存在 1删除）")
+    @TableField(fill = FieldFill.INSERT)
+    private String delFlag;
 
     @ApiModelProperty(value = "文件所属用户（外键）")
     private String driveId = SayaUtils.getDriveId();

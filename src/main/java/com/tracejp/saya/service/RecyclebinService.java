@@ -1,6 +1,7 @@
 package com.tracejp.saya.service;
 
 import com.tracejp.saya.model.entity.Recyclebin;
+import com.tracejp.saya.model.params.base.BaseFileQuery;
 import com.tracejp.saya.service.base.BaseService;
 
 import java.util.List;
@@ -49,5 +50,11 @@ public interface RecyclebinService extends BaseService<Recyclebin> {
      * @return Recyclebin集合
      */
     List<Recyclebin> listByDrive(String driveId);
+
+    /**
+     * 查询所有已被删除的文件或文件夹
+     * @return list
+     */
+    List<Object> listOfFolderContent(BaseFileQuery query);
 
 }
