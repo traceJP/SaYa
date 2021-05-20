@@ -2,6 +2,7 @@ package com.tracejp.saya.controller.open;
 
 import com.tracejp.saya.exception.NotFoundException;
 import com.tracejp.saya.model.dto.UserDto;
+import com.tracejp.saya.model.params.LoginParam;
 import com.tracejp.saya.model.support.BadResponse;
 import com.tracejp.saya.model.support.BaseResponse;
 import com.tracejp.saya.service.UserService;
@@ -35,9 +36,9 @@ public class LoginController {
             @ApiImplicitParam(name = "password", value = "用户密码")
     })
     @PostMapping("/pwd")
-    public BaseResponse<UserDto> loginByPassword(String phone, String password) {
+    public BaseResponse<UserDto> loginByPassword(@RequestBody LoginParam param) {
         try {
-            Optional<UserDto> userDto = userService.authenticateByPassword(phone, password);
+            Optional<UserDto> userDto = userService.authenticateByPassword(param.getPhone(), param.getPassword());
             return BaseResponse.ok(userDto.orElseThrow(() -> new NotFoundException("用户信息未找到")));
         } catch (UnknownAccountException e) {
             String msg = "未知的手机号";
@@ -57,9 +58,9 @@ public class LoginController {
             @ApiImplicitParam(name = "code", value = "短信验证码")
     })
     @PostMapping("/sms")
-    public BaseResponse<UserDto> loginBySms(String phone, String code) {
+    public BaseResponse<UserDto> loginBySms(@RequestBody LoginParam param) {
         try {
-            Optional<UserDto> userDto = userService.authenticateBySms(phone, code);
+            Optional<UserDto> userDto = userService.authenticateBySms(param.getPhone(), param.getSmsCode());
             return BaseResponse.ok(userDto.orElseThrow(() -> new NotFoundException("用户信息未找到")));
         } catch (IncorrectCredentialsException e) {
             String msg = "验证码不正确";

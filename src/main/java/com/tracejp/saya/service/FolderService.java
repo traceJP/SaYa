@@ -91,4 +91,11 @@ public interface FolderService extends BaseService<Folder> {
      */
     void hasFolder(String folderHash);
 
+    /**
+     * 检查文件夹名是否存在问题，如果存在问题则抛出异常
+     * @param name 文件夹名
+     * @param parentHash 父文件哈希
+     */
+    void checkName(String name, String parentHash);
+
 }

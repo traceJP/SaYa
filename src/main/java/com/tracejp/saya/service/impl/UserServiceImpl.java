@@ -1,6 +1,7 @@
 package com.tracejp.saya.service.impl;
 
 import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.ReUtil;
 import cn.hutool.crypto.digest.DigestUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -201,7 +202,10 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
         if (modified) {
             SayaUtils.influence(userMapper.updateById(user));
         }
-        return Optional.of(new UserDto().convertFrom(user));
+        UserDto dto = new UserDto().convertFrom(user);
+        dto.setHasPassword(Objects.nonNull(user.getPassword()));
+        dto.removeSensitive();
+        return Optional.of(dto);
     }
 
     @Override
@@ -218,7 +222,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
         }
 
         // 新密码校验：必须大于8位且必须要有字母+数字
-        if (newPassword.length() < 8 && !RegexUtils.isENG_NUM(newPassword)) {
+        if (!ReUtil.isMatch("//(?=.*[0-9])(?=.*[a-zA-Z])+//", newPassword)) {
             throw new ServiceException("新密码格式不符");
         }
 
@@ -240,6 +244,8 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
         userMapper.updateById(user);
         // 签发token
         ServletUtils.setCurrentHeader(HEADER_TOKEN_NAME, jwtHandler.getToken(user.getDriveId()));
+        userDto.setHasPassword(Objects.nonNull(user.getPassword()));
+        userDto.removeSensitive();
         return userDto;
     }
 

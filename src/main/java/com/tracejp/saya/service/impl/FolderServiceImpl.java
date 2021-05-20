@@ -67,6 +67,9 @@ public class FolderServiceImpl extends BaseServiceImpl<FolderMapper, Folder> imp
         // 检查是否存在父节点
         hasFolder(folder.getParentHash());
 
+        // 检查文件名是否合格
+        checkName(folder.getName(), folder.getParentHash());
+
         // 构建entity新增记录
         Folder entity = folder.convertTo();
         entity.setDriveId(SayaUtils.getDriveId());
@@ -169,8 +172,8 @@ public class FolderServiceImpl extends BaseServiceImpl<FolderMapper, Folder> imp
 
         // 结果返回
         List<Object> res = new ArrayList<>();
-        res.add(files);
-        res.add(folders);
+        res.addAll(folders);
+        res.addAll(files);
         return res;
     }
 
@@ -200,6 +203,18 @@ public class FolderServiceImpl extends BaseServiceImpl<FolderMapper, Folder> imp
         if (folderMapper.selectCount(wrapper) == 0) {
             log.warn("父文件节点不存在");
             throw new ServiceException("传入参数父文件夹不存在");
+        }
+    }
+
+    @Override
+    public void checkName(String name, String parentHash) {
+        LambdaQueryWrapper<Folder> wrapper = Wrappers.lambdaQuery();
+        wrapper.eq(Folder::getDriveId, SayaUtils.getDriveId());
+        wrapper.eq(Folder::getName, name);
+        wrapper.eq(Folder::getParentHash, parentHash);
+        int count = folderMapper.selectCount(wrapper);
+        if (count != 0) {
+            throw new ServiceException("此目录下已存在同名文件，请修改名称");
         }
     }
 

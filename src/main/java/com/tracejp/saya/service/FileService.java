@@ -67,4 +67,11 @@ public interface FileService extends BaseService<File> {
      */
     List<File> listBy(FolderAllQuery query);
 
+    /**
+     * 将文件名转换为合格的文件名
+     * @param name name
+     * @return 合格文件名
+     */
+    String qualifiedName(String name, String parentHash);
+    
 }

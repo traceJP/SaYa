@@ -1,5 +1,6 @@
 package com.tracejp.saya.service.impl;
 
+import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -81,7 +83,12 @@ public class FileServiceImpl extends BaseServiceImpl<FileMapper, File> implement
 
         // 上传成功
         if (Objects.nonNull(upload)) {
+            // 文件名检查
+            upload.setName(qualifiedName(upload.getName(), upload.getFolderHash()));
+
+            // 新增数据库记录
             SayaUtils.influence(fileMapper.insert(upload));
+
             // 新容量计算
             userVolume.setCloudUsed(newCloudVolume);
             volumeService.updateById(userVolume);
@@ -184,4 +191,17 @@ public class FileServiceImpl extends BaseServiceImpl<FileMapper, File> implement
         return fileMapper.selectList(wrapper);
     }
 
+    @Override
+    public String qualifiedName(String name, String parentHash) {
+        LambdaQueryWrapper<File> wrapper = Wrappers.lambdaQuery();
+        wrapper.eq(File::getDriveId, SayaUtils.getDriveId());
+        wrapper.eq(File::getFolderHash, parentHash);
+        wrapper.eq(File::getName, name);
+        int count = fileMapper.selectCount(wrapper);
+        if (count != 0) {
+            String time = DateUtil.format(new Date(), "yyyyMMdd_HHmmss");
+            return name + "_" + time;
+        }
+        return name;
+    }
 }
